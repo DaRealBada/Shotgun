@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap">
+<style>
+body{margin:0;background:#fff4dc;color:#111111;font-family:"Bricolage Grotesque",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#8c491a}a:hover{color:#643312}
+button{font-family:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #ff4d2e;outline-offset:2px}
+@keyframes sg-scroll{to{transform:translateX(-1600px)}}
+@keyframes sg-spin{to{transform:rotate(360deg)}}
+@keyframes sg-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes sg-tw{0%,100%{opacity:.2}50%{opacity:1}}
+@keyframes sg-fade{from{opacity:0}to{opacity:1}}
+@keyframes sg-in{0%{transform:translateX(-1100px)}80%{transform:translateX(18px)}100%{transform:translateX(0)}}
+@keyframes sg-pop{0%{transform:scale(0)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes sg-hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@media (prefers-reduced-motion: reduce){[data-anim]{animation:none!important}}
+</style>
+</helmet>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#ff4d2e"></rect><text x="50" y="66" font-size="48" font-weight="800" text-anchor="middle" fill="#ffffff" font-family="sans-serif">S</text></svg></template>
+<div style="min-height:100vh;background:#fff4dc;color:#111111;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:15px;line-height:1.5;overflow-x:hidden">
+
+<sc-if value="{{ showSignIn }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Sign in" style="min-height:100vh;position:relative;overflow:hidden;display:flex;align-items:center;padding:48px clamp(24px,8vw,120px);background:#1a1220">
+    {{ scene }}
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,12,20,.8) 0%,rgba(18,12,20,.5) 42%,rgba(18,12,20,0) 72%);pointer-events:none"></div>
+    <div style="position:relative;max-width:520px;display:flex;flex-direction:column;gap:22px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-0.02em;font-size:clamp(56px,9vw,96px);line-height:0.95;letter-spacing:-0.02em;color:#fff8ef">Shotgun.</div>
+      <p style="margin:0;font-size:20px;line-height:1.45;max-width:420px;text-wrap:pretty;color:#f3e9dc">One timetable for the house. See at a glance when you can get a lift to uni with Dhiyanick, and plan everything else around it.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;margin-top:8px">
+        <button onClick="{{ signIn }}" style="display:flex;align-items:center;gap:12px;padding:15px 26px;border-radius:999px;border:none;background:#ffffff;color:#111111;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.3)" style-hover="background:#ffffff">
+          <span style="width:26px;height:26px;border-radius:50%;background:#111111;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">G</span>
+          Continue with Google
+        </button>
+        <span style="font-size:13px;color:#d8ccbb">Only Tolu, George and Dhiyanick can join this house.</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <sc-for list="{{ sceneDots }}" as="sd"><button onClick="{{ sd.pick }}" aria-label="{{ sd.label }}" style="height:8px;width:{{ sd.w }};border-radius:999px;border:none;padding:0;cursor:pointer;background:{{ sd.bg }};transition:width .3s,background .3s"></button></sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ showApp }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Calendar" style="display:flex;flex-direction:column;min-height:100vh;padding-bottom:{{ padBottom }}">
+
+  <header style="display:flex;flex-direction:column;gap:10px;padding:14px clamp(12px,3vw,32px) 12px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-0.02em;font-size:28px;line-height:1;letter-spacing:-0.015em">Shotgun</div>
+      <sc-if value="{{ isDesk }}">
+        <div style="display:flex;align-items:center;gap:14px;margin-left:8px">
+          <div style="display:flex;background:#ffd23f;border:2px solid #111111;border-radius:999px;padding:3px;gap:2px">
+            <button onClick="{{ setDay }}" style="border:none;border-radius:999px;padding:8px 18px;font-size:14px;font-weight:600;cursor:pointer;background:{{ segDay.bg }};color:{{ segDay.fg }};box-shadow:{{ segDay.sh }}">Today</button>
+            <button onClick="{{ setWeek }}" style="border:none;border-radius:999px;padding:8px 18px;font-size:14px;font-weight:600;cursor:pointer;background:{{ segWeek.bg }};color:{{ segWeek.fg }};box-shadow:{{ segWeek.sh }}">Week</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <button onClick="{{ prev }}" aria-label="Previous" style="width:38px;height:38px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#111111" style-hover="background:#f6e4bf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+            <div style="min-width:150px;text-align:center;font-weight:700">{{ dateLabel }}</div>
+            <button onClick="{{ next }}" aria-label="Next" style="width:38px;height:38px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#111111" style-hover="background:#f6e4bf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+            <sc-if value="{{ showTodayBtn }}"><button onClick="{{ goToday }}" style="border:1.5px solid #111111;background:transparent;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#111111" style-hover="background:#f6e4bf">Back to today</button></sc-if>
+          </div>
+        </div>
+      </sc-if>
+      <div style="flex:1"></div>
+      <sc-if value="{{ isDesk }}">
+        <button onClick="{{ openNewBtn }}" style="display:flex;align-items:center;gap:8px;border:2px solid #111111;box-shadow:3px 3px 0 #111111;border-radius:999px;padding:10px 18px 10px 14px;background:#ff4d2e;color:#fff;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#e63a1c"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M5 12h14M12 5v14"></path></svg>Add</button>
+      </sc-if>
+      <button onClick="{{ toggleMenu }}" aria-label="Account" style="position:relative;width:42px;height:42px;border-radius:50%;border:3px solid #fff4dc;outline:2px solid {{ meP.c3 }};background:{{ meP.c7 }};color:#fff;font-weight:700;font-size:16px;cursor:pointer;flex:none">{{ meP.initial }}</button>
+    </div>
+    <sc-if value="{{ isMob }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div style="display:flex;background:#ffd23f;border:2px solid #111111;border-radius:999px;padding:3px;gap:2px">
+          <button onClick="{{ setDay }}" style="border:none;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;background:{{ segDay.bg }};color:{{ segDay.fg }};box-shadow:{{ segDay.sh }}">Today</button>
+          <button onClick="{{ setWeek }}" style="border:none;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;background:{{ segWeek.bg }};color:{{ segWeek.fg }};box-shadow:{{ segWeek.sh }}">Week</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:2px">
+          <button onClick="{{ prev }}" aria-label="Previous" style="width:44px;height:44px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#111111"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+          <button onClick="{{ goToday }}" style="border:none;background:transparent;font-weight:700;font-size:14px;color:#111111;cursor:pointer;padding:0 2px;white-space:nowrap">{{ dateLabel }}</button>
+          <button onClick="{{ next }}" aria-label="Next" style="width:44px;height:44px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#111111"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+        </div>
+      </div>
+    </sc-if>
+  </header>
+
+  <sc-if value="{{ hasInvites }}">
+    <div style="display:flex;gap:10px;overflow-x:auto;padding:0 clamp(12px,3vw,32px) 14px">
+      <sc-for list="{{ invites }}" as="iv">
+        <div style="flex:none;width:min(360px,88vw);background:#111111;color:#ffffff;border-radius:22px;box-shadow:4px 4px 0 #ff4d2e;padding:12px 12px 12px 14px;display:flex;align-items:center;gap:12px">
+          <span style="width:34px;height:34px;border-radius:50%;background:{{ iv.c7 }};color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">{{ iv.from }}</span>
+          <button onClick="{{ iv.open }}" style="flex:1;min-width:0;text-align:left;border:none;background:transparent;color:#ffffff;padding:0;cursor:pointer;display:flex;flex-direction:column">
+            <span style="font-size:12px;color:#e8d9b8">{{ iv.line }}</span>
+            <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ iv.title }}</span>
+            <span style="font-size:12px;color:#e8d9b8">{{ iv.when }}</span>
+          </button>
+          <button onClick="{{ iv.decline }}" style="border:1.5px solid #5a5247;background:transparent;color:#ffffff;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;flex:none" style-hover="background:#2e2b25">Decline</button>
+          <button onClick="{{ iv.accept }}" style="border:none;background:#ffffff;color:#111111;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;flex:none" style-hover="background:#ffffff">Accept</button>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDay }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:20px;padding:0 clamp(12px,3vw,32px) 32px">
+    <main style="flex:999 1 460px;min-width:0;max-width:100%;background:#ffffff;border-radius:28px;padding:14px clamp(8px,2vw,18px) 16px;border:2px solid #111111;box-shadow:5px 5px 0 #111111">
+      <div style="font-size:13px;color:#5a5247;padding:0 4px 10px">{{ hint }}</div>
+      <div style="display:grid;grid-template-columns:{{ dayColsTpl }};column-gap:6px;position:sticky;top:0;z-index:5;background:#ffffff;padding-bottom:8px">
+        <div></div>
+        <sc-for list="{{ dayCols }}" as="col" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:999px;background:{{ col.headBg }};min-width:0">
+            <span style="width:28px;height:28px;border-radius:50%;background:{{ col.c7 }};color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none">{{ col.initial }}</span>
+            <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ col.label }}</span>
+            <sc-if value="{{ col.drives }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a2c06" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div onPointerDown="{{ onDown }}" style="position:relative;display:grid;grid-template-columns:{{ dayColsTpl }};grid-template-rows:repeat(15,{{ rowH }});column-gap:6px;user-select:none;-webkit-user-select:none">
+        <sc-for list="{{ hourLabels }}" as="hl"><div style="grid-column:1;grid-row:{{ hl.row }};font-size:12px;font-weight:600;color:{{ hl.c }};border-top:1px solid #11111114;padding-top:3px">{{ hl.t }}</div></sc-for>
+        <sc-for list="{{ dayCells }}" as="c"><div data-p="{{ c.p }}" data-d="{{ c.d }}" data-h="{{ c.h }}" style="grid-column:{{ c.col }};grid-row:{{ c.row }};border-top:1px solid #11111114;background:{{ c.bg }};cursor:pointer" style-hover="background:{{ c.hov }}"></div></sc-for>
+        <sc-for list="{{ dayBlocks }}" as="b">
+          <div data-ev="{{ b.id }}" style="grid-column:{{ b.col }};grid-row:{{ b.row }};margin:3px 4px 4px 0;z-index:2;border-radius:14px;background:{{ b.bg }};border:{{ b.bd }};box-shadow:{{ b.sh }};color:{{ b.fg }};opacity:{{ b.op }};pointer-events:{{ b.pe }};padding:5px 8px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;gap:2px;position:relative;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;min-width:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ b.icon }}"></path></svg>
+              <span style="font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.title }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;min-width:0">
+              <sc-if value="{{ b.tag }}"><span style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:999px;background:{{ b.tagBg }};color:#fff;flex:none;white-space:nowrap">{{ b.tag }}</span></sc-if>
+              <span style="font-size:12px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.sub }}</span>
+            </div>
+            <sc-if value="{{ b.car }}">
+              <span style="position:absolute;right:5px;top:5px;display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px 2px 5px;border-radius:999px;background:#ffffff;color:#8a2c06"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>{{ b.car }}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ daySel.on }}"><div style="grid-column:{{ daySel.col }};grid-row:{{ daySel.row }};margin:3px 0 2px;z-index:3;border-radius:14px;border:2px dashed {{ meP.c7 }};background:{{ meP.c1 }};pointer-events:none;display:flex;align-items:flex-start;padding:6px 8px;font-size:13px;font-weight:700;color:{{ meP.c8 }}">{{ daySel.text }}</div></sc-if>
+        <sc-if value="{{ nowLine.on }}"><div style="grid-column:2 / -1;grid-row:{{ nowLine.row }};align-self:start;margin-top:{{ nowLine.top }};height:2px;background:#ff4d2e;z-index:4;pointer-events:none;position:relative"><span style="position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#ff4d2e"></span></div></sc-if>
+      </div>
+    </main>
+
+    <aside style="flex:1 1 280px;min-width:0;max-width:100%;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:2px;padding:4px 4px 0">
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-0.02em;font-size:32px;line-height:1.1">{{ railTitle }}</div>
+        <div style="font-size:14px;color:#5a5247">{{ railSub }}</div>
+      </div>
+      <div style="background:#f6e4bf;border-radius:28px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a5247">The house</div>
+        <sc-for list="{{ house }}" as="hm" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:34px;height:34px;border-radius:50%;background:{{ hm.c7 }};color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">{{ hm.initial }}</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+              <span style="font-weight:700">{{ hm.name }}</span>
+              <span style="font-size:13px;color:#474238">{{ hm.line }}</span>
+            </div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
+              <sc-for list="{{ hm.chips }}" as="ch"><span style="font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:{{ ch.bg }};color:{{ ch.fg }};white-space:nowrap">{{ ch.t }}</span></sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a5247;padding:4px 4px 0">Also on</div>
+        <sc-for list="{{ dayActs }}" as="a">
+          <button onClick="{{ a.open }}" style="text-align:left;border:none;cursor:pointer;background:#ffffff;border-radius:20px;padding:12px 14px;display:flex;align-items:center;gap:12px;color:#111111;border:2px solid #111111;box-shadow:3px 3px 0 #111111" style-hover="background:#ffffff">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="display:flex;align-items:center;gap:10px;min-width:0"><span style="width:30px;height:30px;border-radius:9px;background:{{ a.fill }};border:2px solid #111111;display:flex;align-items:center;justify-content:center;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ a.icon }}"></path></svg></span><span style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.title }}</span></span>
+              <span style="font-size:13px;color:#5a5247">{{ a.meta }}</span>
+            </div>
+            <div style="display:flex;padding-left:6px">
+              <sc-for list="{{ a.faces }}" as="f"><span style="width:26px;height:26px;border-radius:50%;background:{{ f.c7 }};color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px {{ f.bs }} {{ f.bc }};margin-left:-6px;opacity:{{ f.op }}">{{ f.initial }}</span></sc-for>
+            </div>
+          </button>
+        </sc-for>
+        <button onClick="{{ openNewBtn }}" style="border:2px dashed #111111;background:transparent;border-radius:20px;padding:14px 16px;text-align:left;font-weight:600;color:#474238;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:10px" style-hover="background:#f6e4bf;color:#111111"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M5 12h14M12 5v14"></path></svg>Add gym, groceries, a night out…</button>
+      </div>
+    </aside>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isWeek }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:0 clamp(12px,3vw,32px) 32px">
+    <sc-if value="{{ isMob }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <sc-if value="{{ canCopy }}"><button onClick="{{ copyLastWeek }}" style="align-self:flex-start;border:none;background:#111111;color:#ffffff;font-weight:600;font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer">Copy last week's lectures</button></sc-if>
+        <sc-for list="{{ agenda }}" as="ag" hint-placeholder-count="5">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <button onClick="{{ ag.open }}" style="width:48px;flex:none;border:none;background:transparent;padding:4px 0 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:#111111">
+              <span style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#5a5247">{{ ag.dow }}</span>
+              <span style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;background:{{ ag.numBg }};color:{{ ag.numFg }}">{{ ag.num }}</span>
+            </button>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding-bottom:14px;border-bottom:1px solid #11111114">
+              <sc-if value="{{ ag.hasRide }}"><span style="align-self:flex-start;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:{{ ag.rideBg }};color:{{ ag.rideFg }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>{{ ag.ride }}</span></sc-if>
+              <sc-for list="{{ ag.items }}" as="it">
+                <button onClick="{{ it.open }}" style="text-align:left;cursor:pointer;background:{{ it.bg }};border-radius:16px;padding:9px 12px 9px 9px;display:flex;align-items:center;gap:10px;color:#111111;box-shadow:3px 3px 0 #111111;border:{{ it.bd }};min-height:54px;width:100%">
+                  <span style="width:34px;height:34px;border-radius:10px;background:{{ it.fill }};border:2px solid #111111;display:flex;align-items:center;justify-content:center;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ it.icon }}"></path></svg></span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25">
+                    <span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.title }}</span>
+                    <span style="font-size:13px;color:#5a5247;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.time }}</span>
+                  </span>
+                  <span style="display:flex;flex:none">
+                    <sc-for list="{{ it.faces }}" as="fc"><span style="width:24px;height:24px;flex:none;border-radius:50%;background:{{ fc.c7 }};color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #ffffff;margin-left:-5px;opacity:{{ fc.op }}">{{ fc.initial }}</span></sc-for>
+                  </span>
+                </button>
+              </sc-for>
+              <sc-if value="{{ ag.empty }}"><span style="font-size:14px;color:#5a5247;padding:6px 0">Nothing on</span></sc-if>
+              <button onClick="{{ ag.add }}" style="align-self:flex-start;border:2px dashed #111111;background:transparent;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;color:#474238;cursor:pointer">+ Add</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isDesk }}">
+    <div style="background:#ffffff;border-radius:28px;padding:12px clamp(6px,1.5vw,16px) 16px;border:2px solid #111111;box-shadow:5px 5px 0 #111111">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:2px 6px 12px">
+        <span style="font-size:13px;color:#5a5247">{{ hint }}</span>
+        <sc-if value="{{ canCopy }}"><button onClick="{{ copyLastWeek }}" style="border:none;background:#111111;color:#ffffff;font-weight:600;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer" style-hover="background:#474238">Copy last week's lectures</button></sc-if>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ weekTpl }};position:sticky;top:0;z-index:5;background:#ffffff;padding-bottom:6px;border-bottom:1px solid #11111114">
+        <div></div>
+        <sc-for list="{{ weekHeads }}" as="wh" hint-placeholder-count="5">
+          <button onClick="{{ wh.open }}" style="border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;color:#111111;border-radius:14px;min-width:0" style-hover="background:#f6e4bf">
+            <span style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#5a5247">{{ wh.dow }}</span>
+            <span style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;background:{{ wh.numBg }};color:{{ wh.numFg }}">{{ wh.num }}</span>
+            <sc-if value="{{ wh.hasRide }}"><span style="display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:{{ wh.rideFg }};white-space:nowrap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>{{ wh.ride }}</span></sc-if>
+          </button>
+        </sc-for>
+      </div>
+      <div onPointerDown="{{ onDown }}" style="display:grid;grid-template-columns:{{ weekTpl }};user-select:none;-webkit-user-select:none">
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ weekHours }}" as="hr"><div style="height:{{ hr.hgt }};flex:none;font-size:11px;font-weight:600;color:#5a5247;padding-top:2px">{{ hr.t }}</div></sc-for>
+        </div>
+        <sc-for list="{{ weekCols }}" as="wc" hint-placeholder-count="5">
+          <div style="position:relative;border-left:1px solid #11111114;background:{{ wc.bg }};min-width:0">
+            <sc-for list="{{ wc.slots }}" as="sl"><div data-p="{{ sl.p }}" data-d="{{ sl.d }}" data-h="{{ sl.h }}" style="height:{{ sl.hgt }};border-top:1px solid #11111110;cursor:pointer" style-hover="background:#11111108"></div></sc-for>
+            <sc-for list="{{ wc.evs }}" as="b">
+              <div data-ev="{{ b.id }}" style="position:absolute;top:{{ b.top }};height:{{ b.hgt }};left:{{ b.left }};width:{{ b.wid }};z-index:2;background:{{ b.bg }};border:{{ b.bd }};border-radius:10px;padding:{{ b.pad }};overflow:hidden;cursor:pointer;display:flex;flex-direction:column;align-items:{{ b.align }};gap:2px;color:#111111;box-shadow:{{ b.sh }};min-width:0">
+                <div style="display:flex;align-items:center;justify-content:{{ b.align }};gap:4px;min-width:0;height:15px;flex:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ b.icon }}"></path></svg><sc-if value="{{ b.showTitle }}"><span style="font-size:11.5px;font-weight:700;line-height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.title }}</span></sc-if></div>
+                <sc-if value="{{ b.showTime }}"><span style="font-size:11px;color:#5a5247;white-space:nowrap;line-height:14px">{{ b.time }}</span></sc-if>
+                <div style="display:flex;flex-direction:{{ b.fdir }};align-items:center;gap:2px;flex-wrap:wrap"><sc-for list="{{ b.faces }}" as="fc"><span style="width:14px;height:14px;flex:none;border-radius:50%;background:{{ fc.c7 }};color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;opacity:{{ fc.op }}">{{ fc.initial }}</span></sc-for></div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ wc.sel.on }}"><div style="position:absolute;top:{{ wc.sel.top }};height:{{ wc.sel.hgt }};left:2px;right:2px;z-index:3;border-radius:10px;border:2px dashed #ff4d2e;background:#fbeee3;pointer-events:none"></div></sc-if>
+            <sc-if value="{{ wc.nowOn }}"><div style="position:absolute;left:0;right:0;top:{{ wc.nowTop }};height:2px;background:#ff4d2e;z-index:4;pointer-events:none"></div></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ showFab }}">
+    <button onClick="{{ openNewBtn }}" aria-label="Add" style="position:fixed;right:18px;bottom:22px;z-index:30;width:60px;height:60px;border-radius:50%;border:none;background:#ff4d2e;color:#fff;border:2px solid #111111;box-shadow:4px 4px 0 #111111;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M5 12h14M12 5v14"></path></svg></button>
+  </sc-if>
+</div>
+</sc-if>
+
+<div onClick="{{ toggleMenu }}" style="position:fixed;inset:0;z-index:40;display:{{ menu.display }}"></div>
+<div style="position:fixed;top:64px;right:clamp(12px,3vw,32px);z-index:41;width:270px;background:#ffffff;border-radius:24px;padding:16px;border:2px solid #111111;box-shadow:5px 5px 0 #111111;display:flex;flex-direction:column;gap:10px;opacity:{{ menu.op }};transform:{{ menu.tf }};pointer-events:{{ menu.pe }};transition:opacity .18s,transform .18s">
+  <div style="display:flex;flex-direction:column">
+    <span style="font-weight:700">{{ meP.name }}</span>
+    <span style="font-size:13px;color:#5a5247">{{ meP.email }}</span>
+  </div>
+  <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a5247">Preview as</div>
+  <div style="display:flex;gap:8px">
+    <sc-for list="{{ switcher }}" as="sw">
+      <button onClick="{{ sw.pick }}" style="flex:1;border:none;border-radius:16px;padding:8px 4px;cursor:pointer;background:{{ sw.bg }};display:flex;flex-direction:column;align-items:center;gap:4px;color:#111111" style-hover="background:#eee7db">
+        <span style="width:30px;height:30px;border-radius:50%;background:{{ sw.c7 }};color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">{{ sw.initial }}</span>
+        <span style="font-size:12px;font-weight:600">{{ sw.name }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <button onClick="{{ openTypes }}" style="border:none;background:transparent;text-align:left;padding:10px;border-radius:12px;font-size:14px;cursor:pointer;color:#111111;font-weight:600" style-hover="background:#eee7db">Slot types…</button>
+  <button onClick="{{ resetDemo }}" style="border:none;background:transparent;text-align:left;padding:10px;border-radius:12px;font-size:14px;cursor:pointer;color:#111111" style-hover="background:#eee7db">Reset demo data</button>
+  <button onClick="{{ signOut }}" style="border:none;background:transparent;text-align:left;padding:10px;border-radius:12px;font-size:14px;cursor:pointer;color:#8c491a;font-weight:600" style-hover="background:#fff2eb">Sign out</button>
+</div>
+
+<div onClick="{{ closeSheet }}" style="position:fixed;inset:0;z-index:50;background:rgba(32,30,29,.3);opacity:{{ sh.op }};pointer-events:{{ sh.pe }};transition:opacity .22s"></div>
+<div role="dialog" style="position:fixed;z-index:51;top:{{ sh.top }};right:{{ sh.right }};bottom:{{ sh.bottom }};left:{{ sh.left }};width:{{ sh.width }};max-height:{{ sh.maxH }};border-radius:{{ sh.rad }};transform:{{ sh.tf }};pointer-events:{{ sh.pe }};transition:transform .3s cubic-bezier(.2,.9,.3,1);background:#fff4dc;border:2px solid #111111;box-shadow:6px 6px 0 #111111;overflow:auto;padding:18px 20px 22px;display:flex;flex-direction:column;gap:18px">
+  <sc-if value="{{ isMob }}"><div style="width:44px;height:5px;border-radius:999px;background:#111111;align-self:center;margin:-6px 0 -6px"></div></sc-if>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-0.02em;font-size:24px;line-height:1.15">{{ sh.heading }}</div>
+    <button onClick="{{ closeSheet }}" aria-label="Close" style="width:40px;height:40px;border-radius:50%;border:none;background:#f6e4bf;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#111111;flex:none" style-hover="background:#e8d9b8"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+  </div>
+
+  <sc-if value="{{ sh.isForm }}">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:13px;font-weight:700;color:#474238">What is it?</span>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ f.types }}" as="t">
+            <button onClick="{{ t.pick }}" style="border:{{ t.bd }};box-shadow:{{ t.sh }};opacity:{{ t.op }};border-radius:999px;padding:7px 14px 7px 11px;font-size:14px;font-weight:700;cursor:pointer;background:{{ t.bg }};color:{{ t.fg }};display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ t.icon }}"></path></svg>{{ t.label }}</button>
+          </sc-for>
+          <button onClick="{{ f.toggleNt }}" style="border:2px dashed #111111;border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:#474238" style-hover="background:#f6e4bf">+ New type</button>
+        </div>
+        <sc-if value="{{ f.ntOpen }}">
+          <div style="background:#ffffff;border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:10px">
+            <input value="{{ f.ntLabel }}" onChange="{{ f.setNtLabel }}" placeholder="e.g. Part-time work, Football, Library" style="border:2px solid #e8d9b8;background:#ffffff;border-radius:999px;padding:10px 16px;font-size:15px;font-family:inherit;color:#111111;outline:none" style-focus="border-color:#ff4d2e">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <sc-for list="{{ f.icons }}" as="ic"><button onClick="{{ ic.pick }}" aria-label="Icon" style="width:36px;height:36px;border-radius:12px;border:none;background:{{ ic.bg }};color:{{ ic.fg }};cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ ic.icon }}"></path></svg></button></sc-for>
+              <button onClick="{{ f.toggleNtCampus }}" style="border:none;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;background:{{ f.ntCampusBg }};color:{{ f.ntCampusFg }}">On campus</button>
+              <div style="flex:1"></div>
+              <button onClick="{{ f.addNt }}" style="border:none;background:#111111;color:#ffffff;border-radius:999px;padding:8px 16px;font-size:14px;font-weight:700;cursor:pointer">Add type</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <input value="{{ f.title }}" onChange="{{ f.setTitle }}" placeholder="{{ f.placeholder }}" style="border:2px solid #e8d9b8;background:#ffffff;border-radius:999px;padding:12px 18px;font-size:16px;font-family:inherit;color:#111111;outline:none" style-focus="border-color:#ff4d2e">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:13px;font-weight:700;color:#474238">When</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <select onChange="{{ f.setDay }}" style="flex:1 1 110px;border:2px solid #e8d9b8;background:#ffffff;border-radius:999px;padding:10px 14px;font-size:15px;font-family:inherit;color:#111111">
+            <sc-for list="{{ f.dayOpts }}" as="o"><option value="{{ o.v }}" selected="{{ o.sel }}">{{ o.t }}</option></sc-for>
+          </select>
+          <select onChange="{{ f.setStart }}" style="flex:1 1 90px;border:2px solid #e8d9b8;background:#ffffff;border-radius:999px;padding:10px 14px;font-size:15px;font-family:inherit;color:#111111">
+            <sc-for list="{{ f.startOpts }}" as="o"><option value="{{ o.v }}" selected="{{ o.sel }}">{{ o.t }}</option></sc-for>
+          </select>
+          <div style="flex:1 1 130px;display:flex;align-items:center;justify-content:space-between;background:#f6e4bf;border-radius:999px;padding:3px">
+            <button onClick="{{ f.durMinus }}" aria-label="Shorter" style="width:38px;height:38px;border-radius:50%;border:none;background:#ffffff;font-size:20px;font-weight:700;cursor:pointer;color:#111111;opacity:{{ f.minusOp }}">−</button>
+            <span style="font-weight:700;font-size:15px">{{ f.durLabel }}</span>
+            <button onClick="{{ f.durPlus }}" aria-label="Longer" style="width:38px;height:38px;border-radius:50%;border:none;background:#ffffff;font-size:20px;font-weight:700;cursor:pointer;color:#111111;opacity:{{ f.plusOp }}">+</button>
+          </div>
+        </div>
+        <span style="font-size:13px;color:#5a5247">{{ f.whenText }}</span>
+        <sc-if value="{{ f.conflict }}"><span style="font-size:13px;font-weight:600;color:#a61e1e;background:#ffe3e3;border-radius:12px;padding:8px 12px">{{ f.conflict }}</span></sc-if>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:13px;font-weight:700;color:#474238">Who's in</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ f.people }}" as="w">
+            <button onClick="{{ w.pick }}" style="flex:1 1 100px;border:2px {{ w.bs }} {{ w.bc }};border-radius:999px;padding:5px 12px 5px 5px;cursor:pointer;background:{{ w.bg }};display:flex;align-items:center;gap:8px;color:#111111;min-width:0">
+              <span style="width:30px;height:30px;border-radius:50%;background:{{ w.c7 }};color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none">{{ w.initial }}</span>
+              <span style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;line-height:1.2">
+                <span style="font-size:14px;font-weight:700">{{ w.name }}</span>
+                <span style="font-size:12px;color:#5a5247">{{ w.status }}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+        <span style="font-size:13px;color:#5a5247">{{ f.note }}</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <sc-if value="{{ f.canDelete }}"><button onClick="{{ f.del }}" style="border:none;background:transparent;color:#8c491a;font-weight:600;font-size:14px;cursor:pointer;padding:10px 12px;border-radius:999px" style-hover="background:#fff2eb">Delete</button></sc-if>
+        <div style="flex:1"></div>
+        <button onClick="{{ closeSheet }}" style="border:none;background:transparent;font-weight:600;font-size:14px;cursor:pointer;padding:12px 16px;border-radius:999px;color:#111111" style-hover="background:#f6e4bf">Cancel</button>
+        <button onClick="{{ f.save }}" style="border:2px solid #111111;box-shadow:3px 3px 0 #111111;background:#ff4d2e;color:#fff;font-weight:700;font-size:15px;cursor:pointer;padding:13px 22px;border-radius:999px" style-hover="background:#e63a1c">{{ f.saveLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sh.isView }}">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:4px 12px 4px 9px;border-radius:999px;background:{{ v.fill }};border:2px solid #111111;color:#111111"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ v.icon }}"></path></svg>{{ v.type }}</span>
+          <sc-if value="{{ v.campus }}"><span style="font-size:12px;font-weight:600;color:#5a5247">On campus</span></sc-if>
+        </div>
+        <div style="font-size:17px;font-weight:700">{{ v.when }}</div>
+        <sc-if value="{{ v.carNote }}"><div style="font-size:14px;color:#474238">{{ v.carNote }}</div></sc-if>
+      </div>
+      <div style="background:#ffffff;border-radius:22px;padding:6px 14px">
+        <sc-for list="{{ v.people }}" as="vp">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #11111110">
+            <span style="width:32px;height:32px;border-radius:50%;background:{{ vp.c7 }};color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none;opacity:{{ vp.op }}">{{ vp.initial }}</span>
+            <span style="flex:1;font-weight:700">{{ vp.name }}</span>
+            <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:{{ vp.bg }};color:{{ vp.fg }}">{{ vp.status }}</span>
+            <sc-if value="{{ vp.canInvite }}"><button onClick="{{ vp.invite }}" style="border:none;background:#111111;color:#ffffff;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;cursor:pointer">Invite</button></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <sc-for list="{{ v.actions }}" as="ac">
+          <button onClick="{{ ac.fn }}" style="flex:1 1 120px;border:{{ ac.bd }};background:{{ ac.bg }};color:{{ ac.fg }};font-weight:700;font-size:15px;cursor:pointer;padding:13px 18px;border-radius:999px">{{ ac.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sh.isTypes }}">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:14px;color:#474238">Tap a custom type's icon to change it. Types marked "on campus" count towards lifts with Dhiyanick.</span>
+      <div style="background:#ffffff;border-radius:22px;padding:4px 14px">
+        <sc-for list="{{ tm.list }}" as="ty">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #11111110">
+            <button onClick="{{ ty.cycle }}" aria-label="Change icon" style="width:34px;height:34px;border-radius:10px;background:{{ ty.bg }};border:2px solid #111111;cursor:{{ ty.cur }};padding:0;flex:none;display:flex;align-items:center;justify-content:center;color:#111111"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ ty.icon }}"></path></svg></button>
+            <span style="flex:1;font-weight:700">{{ ty.label }}</span>
+            <button onClick="{{ ty.toggleCampus }}" style="border:none;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;cursor:{{ ty.cur }};background:{{ ty.campusBg }};color:{{ ty.campusFg }}">{{ ty.campusText }}</button>
+            <sc-if value="{{ ty.custom }}"><button onClick="{{ ty.del }}" aria-label="Delete type" style="width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:#8c491a;display:flex;align-items:center;justify-content:center" style-hover="background:#fff2eb"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#f6e4bf;border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:13px;font-weight:700;color:#474238">New type</span>
+        <input value="{{ f.ntLabel }}" onChange="{{ f.setNtLabel }}" placeholder="e.g. Part-time work, Football, Library" style="border:2px solid #e8d9b8;background:#ffffff;border-radius:999px;padding:10px 16px;font-size:15px;font-family:inherit;color:#111111;outline:none" style-focus="border-color:#ff4d2e">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <sc-for list="{{ f.icons }}" as="ic"><button onClick="{{ ic.pick }}" aria-label="Icon" style="width:36px;height:36px;border-radius:12px;border:none;background:{{ ic.bg }};color:{{ ic.fg }};cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ ic.icon }}"></path></svg></button></sc-for>
+          <button onClick="{{ f.toggleNtCampus }}" style="border:none;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;background:{{ f.ntCampusBg }};color:{{ f.ntCampusFg }}">On campus</button>
+          <div style="flex:1"></div>
+          <button onClick="{{ f.addNt }}" style="border:none;background:#111111;color:#ffffff;border-radius:999px;padding:8px 16px;font-size:14px;font-weight:700;cursor:pointer">Add type</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+<div style="position:fixed;left:50%;bottom:{{ toast.bottom }};z-index:60;display:flex;align-items:center;gap:14px;background:#2e2b25;color:#ffffff;border-radius:999px;padding:10px 12px 10px 20px;font-size:14px;border:2px solid #111111;box-shadow:5px 5px 0 #111111;width:max-content;max-width:calc(100vw - 32px);opacity:{{ toast.op }};transform:{{ toast.tf }};pointer-events:{{ toast.pe }};transition:opacity .2s,transform .25s">
+  <span>{{ toast.msg }}</span>
+  <sc-if value="{{ toast.hasUndo }}"><button onClick="{{ undo }}" style="border:none;background:#474238;color:#ffc6a5;font-weight:700;font-size:13px;padding:6px 14px;border-radius:999px;cursor:pointer;flex:none" style-hover="background:#5a5247">Undo</button></sc-if>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;day&quot;,&quot;week&quot;],&quot;default&quot;:&quot;day&quot;,&quot;tsType&quot;:&quot;'day'|'week'&quot;,&quot;section&quot;:&quot;Calendar&quot;},&quot;showWeekend&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Calendar&quot;},&quot;layout&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'desktop'|'mobile'&quot;,&quot;section&quot;:&quot;Calendar&quot;},&quot;maxWait&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:0,&quot;max&quot;:4,&quot;step&quot;:1,&quot;unit&quot;:&quot;h&quot;,&quot;default&quot;:2,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Rides&quot;},&quot;startSignedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;}}">
+class Component extends DCLogic {
+  static P = [
+    { id: 'dhiya', name: 'Dhiyanick', drives: true, c1: '#fff1e8', c3: '#ffc9a8', c7: '#d9480f', c8: '#8a2c06' },
+    { id: 'george', name: 'George', c1: '#ebfbee', c3: '#b9e8c2', c7: '#2b8a3e', c8: '#1b5e28' },
+    { id: 'tolu', name: 'Tolu', c1: '#f3f0ff', c3: '#d6c9ff', c7: '#5f3dc4', c8: '#3b2585' }
+  ];
+  static H = Array.from({ length: 15 }, (_, i) => i + 7);
+  static DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static DOWL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  static HATCH = 'repeating-linear-gradient(135deg, #ffffff 0 6px, #e8d9b8 6px 9px)';
+  static FILLS = ['#9be15d', '#74e0e8', '#f7a6ff', '#ff8c69', '#a0a8ff', '#ffe066'];
+  fillOf(t) { return t.fill || '#e6e1d6'; }
+  stripes(c) { return `repeating-linear-gradient(135deg, ${c} 0 7px, #ffffff 7px 12px)`; }
+  static BASE = [
+    { id: 'lecture', label: 'Lecture', fill: '#7cc6ff', campus: true },
+    { id: 'social', label: 'Social', fill: '#ff7ab6' },
+    { id: 'groceries', label: 'Groceries', fill: '#5ee6a0' },
+    { id: 'gym', label: 'Gym', fill: '#ffd23f' },
+    { id: 'society', label: 'Society', fill: '#b69cff', campus: true },
+    { id: 'exam', label: 'Exam', fill: '#ff9f43', campus: true },
+    { id: 'other', label: 'Other', fill: '#e6e1d6' },
+    { id: 'wait', label: 'Waiting for lift', fill: '#ffffff', campus: true }
+  ];
+  static IC = {
+    lecture: 'M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z',
+    social: 'M8 22h8M12 11v11M4 3h16l-8 8z',
+    groceries: 'M2 3h3l2.7 11.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L21 7H6.2M9 20a1 1 0 1 0 2 0a1 1 0 1 0-2 0M17 20a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
+    gym: 'M6 6v12M18 6v12M3 9v6M21 9v6M6 12h12',
+    society: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M5 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8',
+    exam: 'M9 2h6v4H9zM16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 14l2 2 4-4',
+    other: 'M12 2l3 7h7l-5.5 4.5 2 7.5-6.5-4-6.5 4 2-7.5L2 9h7z',
+    wait: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2',
+    work: 'M3 7h18v13H3zM8 7V4h8v3M3 13h18',
+    music: 'M9 18V5l12-2v13M3 18a3 3 0 1 0 6 0a3 3 0 1 0-6 0M15 16a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
+    ball: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 7l4.5 3.3-1.7 5.2H9.2l-1.7-5.2zM12 2v5M21.5 9.5l-5 .8M18 20l-3.2-4.5M6 20l3.2-4.5M2.5 9.5l5 .8',
+    heart: 'M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z',
+    tag: 'M12 2H2v10l9.3 9.3a2 2 0 0 0 2.8 0l7.2-7.2a2 2 0 0 0 0-2.8zM7 7h.01'
+  };
+  static CUSTOM_ICONS = ['work', 'music', 'ball', 'heart', 'tag', 'other'];
+  static SW = [['#0ca678', '#d3f9ec'], ['#9c36b5', '#f8e1fc'], ['#5c940d', '#ebf5d3'], ['#364fc7', '#dfe4ff'], ['#a61e4d', '#ffe0ea'], ['#e67700', '#fff0db']];
+  static KEY = 'shotgun-v3-data';
+  static KEY_ME = 'shotgun-v3-me';
+
+  seed() {
+    const ev = []; let n = 0;
+    const L = (p, d, s, dur, title) => [0, -1].forEach(w => ev.push({ id: 's' + (n++), type: 'lecture', title: title || '', w, d, start: s, dur, owner: p, people: { [p]: 'going' } }));
+    L('dhiya', 0, 9, 2, 'Thermodynamics'); L('dhiya', 0, 13, 3); L('dhiya', 1, 10, 3); L('dhiya', 1, 15, 2); L('dhiya', 2, 9, 2); L('dhiya', 3, 11, 6);
+    L('tolu', 0, 9, 3, 'Data Structures'); L('tolu', 0, 14, 2); L('tolu', 1, 11, 2); L('tolu', 1, 15, 1); L('tolu', 2, 13, 2); L('tolu', 3, 9, 2); L('tolu', 3, 14, 2); L('tolu', 4, 10, 2);
+    L('george', 0, 10, 2); L('george', 0, 15, 1); L('george', 1, 10, 2); L('george', 1, 16, 2); L('george', 2, 9, 3); L('george', 3, 12, 2); L('george', 3, 16, 1); L('george', 4, 9, 1);
+    const A = (o) => ev.push({ id: 's' + (n++), w: 0, title: '', ...o });
+    A({ type: 'gym', title: 'Morning gym', d: 1, start: 7, dur: 1, owner: 'george', people: { george: 'going', dhiya: 'going' } });
+    A({ type: 'gym', title: 'Gym', d: 3, start: 7, dur: 1, owner: 'tolu', people: { tolu: 'going' } });
+    A({ type: 'groceries', title: 'Big shop', d: 2, start: 17, dur: 1, owner: 'dhiya', people: { dhiya: 'going', tolu: 'going', george: 'going' } });
+    A({ type: 'social', title: 'Pub quiz', d: 3, start: 18, dur: 2, owner: 'tolu', people: { tolu: 'going', george: 'going', dhiya: 'invited' } });
+    A({ type: 'society', title: 'Society social', d: 0, start: 17, dur: 2, owner: 'tolu', people: { tolu: 'going' } });
+    A({ type: 'exam', title: 'Midterm', d: 4, start: 13, dur: 2, owner: 'george', people: { george: 'going' } });
+    A({ type: 'social', title: 'Cinema', d: 4, start: 19, dur: 2, owner: 'george', people: { george: 'going', tolu: 'invited' } });
+    return { events: ev, types: [] };
+  }
+
+  state = (() => {
+    const sd = this.seed();
+    return { sc: 0, signedIn: null, me: 'tolu', view: null, weekOffset: 0, day: Math.min((new Date().getDay() + 6) % 7, 4), events: sd.events, types: sd.types, sheet: null, menu: false, toast: null, w: typeof window !== 'undefined' ? window.innerWidth : 1200, sel: null, nt: { label: '', icon: 'work', campus: false } };
+  })();
+
+  load(sync) {
+    try {
+      const raw = localStorage.getItem(Component.KEY);
+      if (raw) { const o = JSON.parse(raw); this.syncing = true; this.setState({ events: o.events || this.state.events, types: o.types || [] }, () => { this.syncing = false; }); }
+      if (!sync && !this.asP) { const m = JSON.parse(localStorage.getItem(Component.KEY_ME) || 'null'); if (m) this.setState({ me: m.me || 'tolu', view: m.view ?? null, signedIn: m.signedIn ?? null }); }
+    } catch (e) {}
+  }
+  componentDidMount() {
+    this.asP = new URLSearchParams(location.search).get('as');
+    this.load(false);
+    if (this.asP && this.person(this.asP)) this.setState({ me: this.asP, signedIn: true });
+    const nd = this.nDays(); if (this.state.day >= nd) this.setState({ day: nd - 1 });
+    this.onStorage = (e) => { if (e.key === Component.KEY) this.load(true); };
+    this.onResize = () => this.setState({ w: window.innerWidth });
+    this.onKey = (e) => {
+      if (e.key === 'Escape') { this.setState({ sheet: null, menu: false }); return; }
+      if (this.state.sheet || (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName))) return;
+      if (e.key === 'ArrowLeft') this.prev();
+      if (e.key === 'ArrowRight') this.next();
+      if (e.key === 't' || e.key === 'd') this.setState({ view: 'day' });
+      if (e.key === 'w') this.setState({ view: 'week' });
+      if (e.key === 'n') this.openNew();
+    };
+    window.addEventListener('storage', this.onStorage);
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('keydown', this.onKey);
+    this.onResize();
+    this.scInt = setInterval(() => { if (!this.signedIn()) this.setState(s => ({ sc: s.sc + 1 })); }, 7000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.scInt);
+    window.removeEventListener('storage', this.onStorage);
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('pointermove', this.onMove);
+  }
+  componentDidUpdate(pp, ps) {
+    const s = this.state;
+    try {
+      if (!this.syncing && (ps.events !== s.events || ps.types !== s.types)) localStorage.setItem(Component.KEY, JSON.stringify({ events: s.events, types: s.types }));
+      if (!this.asP && (ps.me !== s.me || ps.view !== s.view || ps.signedIn !== s.signedIn)) localStorage.setItem(Component.KEY_ME, JSON.stringify({ me: s.me, view: s.view, signedIn: s.signedIn }));
+    } catch (e) {}
+  }
+
+  nDays() { return this.props.showWeekend ? 7 : 5; }
+  view() { return this.state.view || this.props.defaultView || 'day'; }
+  signedIn() { return this.state.signedIn ?? (this.props.startSignedIn ?? false); }
+  isMob() { return this.props.layout === 'mobile' || (this.props.layout !== 'desktop' && this.state.w < 720); }
+  person(id) { const p = Component.P.find(q => q.id === id); return p && this.deco(p); }
+  deco(p) { const mine = p.id === this.state.me; return { ...p, c7: mine ? '#ff4d2e' : '#111111', c1: mine ? '#fbeee3' : '#efe6d6', c3: '#e6dccb', c8: '#111111' }; }
+  iconOf(t) { return Component.IC[t.icon || t.id] || Component.IC.tag; }
+  driver() { return Component.P.find(p => p.drives); }
+  fmt(h) { return h + ':00'; }
+  allTypes() { return [...Component.BASE, ...this.state.types]; }
+  typeOf(id) { return this.allTypes().find(t => t.id === id) || Component.BASE[6]; }
+  label(e) { return e.title || this.typeOf(e.type).label; }
+  monday(off) { const t = new Date(); t.setHours(0, 0, 0, 0); t.setDate(t.getDate() - ((t.getDay() + 6) % 7) + off * 7); return t; }
+  dateOf(d, w = this.state.weekOffset) { const x = this.monday(w); x.setDate(x.getDate() + d); return x; }
+  todayIdx() { return this.state.weekOffset === 0 ? (new Date().getDay() + 6) % 7 : -1; }
+  evs(p, d, withInvites) { const w = this.state.weekOffset; return this.state.events.filter(e => e.w === w && e.d === d && (e.people[p] === 'going' || (withInvites && e.people[p] === 'invited'))).sort((a, b) => a.start - b.start); }
+  hrs(p, d) { const s = new Set(); this.evs(p, d).forEach(e => { if (this.typeOf(e.type).campus) for (let h = e.start; h < e.start + e.dur; h++) s.add(h); }); return [...s].sort((a, b) => a - b); }
+  ride(p, d) {
+    const mine = this.hrs(p, d); if (!mine.length) return null;
+    const dh = this.hrs(this.driver().id, d), maxWait = this.props.maxWait ?? 2;
+    const mF = mine[0], mL = mine[mine.length - 1] + 1;
+    if (!dh.length) return { mF, mL, off: true, in: { st: 'no' }, home: { st: 'no' } };
+    const dF = dh[0], dL = dh[dh.length - 1] + 1;
+    const mk = (ok, time, wait) => ({ st: !ok ? 'no' : wait === 0 ? 'match' : wait > maxWait ? 'long' : 'wait', time, wait });
+    return { mF, mL, dF, dL, in: mk(dF <= mF, dF, mF - dF), home: mk(dL >= mL, dL, dL - mL) };
+  }
+  toast(msg, undo) { clearTimeout(this.tt); this.setState({ toast: { msg, undo } }); this.tt = setTimeout(() => this.setState({ toast: null }), 4200); }
+
+  onDown = (e) => {
+    if (e.button) return;
+    const t = e.target.closest && e.target.closest('[data-ev],[data-h]'); if (!t) return;
+    const touch = e.pointerType !== 'mouse';
+    this.dn = { x: e.clientX, y: e.clientY, t, moved: false };
+    if (t.dataset.ev) this.dn.ev = t.dataset.ev;
+    else if (!touch && t.dataset.p === this.state.me) {
+      e.preventDefault();
+      const d = +t.dataset.d, h = +t.dataset.h;
+      this.dn.drag = { p: t.dataset.p, d, a: h };
+      this.setState({ sel: { p: t.dataset.p, d, s: h, e: h } });
+    }
+    window.addEventListener('pointermove', this.onMove);
+    window.addEventListener('pointerup', this.onUp, { once: true });
+  };
+  onMove = (e) => {
+    const dn = this.dn; if (!dn) return;
+    if (Math.abs(e.clientX - dn.x) + Math.abs(e.clientY - dn.y) > 8) dn.moved = true;
+    if (!dn.drag) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY), c = el && el.closest && el.closest('[data-h]');
+    if (!c || c.dataset.p !== dn.drag.p || +c.dataset.d !== dn.drag.d) return;
+    const h = +c.dataset.h, s = Math.min(dn.drag.a, h), en = Math.max(dn.drag.a, h), cur = this.state.sel;
+    if (!cur || cur.s !== s || cur.e !== en) this.setState({ sel: { ...cur, s, e: en } });
+  };
+  onUp = () => {
+    window.removeEventListener('pointermove', this.onMove);
+    const dn = this.dn; this.dn = null; if (!dn) return;
+    if (dn.drag) { const sel = this.state.sel; this.setState({ sel: null }); if (sel) this.openNew({ d: sel.d, start: sel.s, dur: sel.e - sel.s + 1, forP: dn.drag.p }); return; }
+    if (dn.moved) return;
+    if (dn.ev) return this.openView(dn.ev);
+    const t = dn.t; this.openNew({ d: +t.dataset.d, start: +t.dataset.h, dur: 1, forP: t.dataset.p });
+  };
+
+  openNew = (o = {}) => {
+    const me = this.state.me, other = o.forP && o.forP !== me ? o.forP : null;
+    const d = o.d ?? Math.min(this.state.day, this.nDays() - 1);
+    const start = o.start ?? Math.max(7, Math.min(21, new Date().getHours() + 1));
+    this.setState({ menu: false, sheet: { mode: 'form', id: null, d, start, dur: Math.min(o.dur || 1, 22 - start), type: other ? 'social' : 'lecture', title: '', invite: other ? [other] : [], ntOpen: false } });
+  };
+  openView = (id) => this.setState({ menu: false, sheet: { mode: 'view', id } });
+  openEdit = (id) => {
+    const e = this.state.events.find(x => x.id === id); if (!e) return;
+    this.setState({ sheet: { mode: 'form', id, d: e.d, start: e.start, dur: e.dur, type: e.type, title: e.title, invite: Object.keys(e.people).filter(p => p !== e.owner && e.people[p] !== 'declined'), ntOpen: false } });
+  };
+  setF = (patch) => this.setState(s => ({ sheet: { ...s.sheet, ...patch } }));
+  save = () => {
+    const f = this.state.sheet, me = this.state.me, before = this.state.events;
+    if (f.id) {
+      const e = before.find(x => x.id === f.id);
+      const people = { [e.owner]: e.people[e.owner] || 'going' };
+      f.invite.forEach(p => { people[p] = e.people[p] === 'going' || e.people[p] === 'invited' ? e.people[p] : 'invited'; });
+      const ne = { ...e, d: f.d, start: f.start, dur: f.dur, type: f.type, title: f.title.trim(), people };
+      this.setState({ events: before.map(x => x.id === f.id ? ne : x), sheet: null, day: f.d });
+      this.toast(`Updated ${this.label(ne)}`, () => this.setState({ events: before }));
+    } else {
+      const people = { [me]: 'going' }; f.invite.forEach(p => { people[p] = 'invited'; });
+      const ne = { id: 'e' + Date.now(), w: this.state.weekOffset, d: f.d, start: f.start, dur: f.dur, type: f.type, title: f.title.trim(), owner: me, people };
+      this.setState({ events: [...before, ne], sheet: null, day: f.d });
+      this.toast(`Added ${this.label(ne)}${f.invite.length ? ` · invite sent to ${f.invite.map(p => this.person(p).name).join(' & ')}` : ''}`, () => this.setState({ events: before }));
+    }
+  };
+  setStatus(id, p, st, msg) {
+    const before = this.state.events;
+    this.setState({ events: before.map(e => { if (e.id !== id) return e; const people = { ...e.people }; if (st) people[p] = st; else delete people[p]; return { ...e, people }; }) });
+    if (msg) this.toast(msg, () => this.setState({ events: before }));
+  }
+  del(id) {
+    const before = this.state.events, e = before.find(x => x.id === id);
+    this.setState({ events: before.filter(x => x.id !== id), sheet: null });
+    this.toast(`Deleted ${this.label(e)}`, () => this.setState({ events: before }));
+  }
+  addType = () => {
+    const nt = this.state.nt, label = nt.label.trim();
+    if (!label) { this.toast('Give the new type a name first'); return; }
+    const t = { id: 't' + Date.now(), label, icon: nt.icon, fill: Component.FILLS[this.state.types.length % Component.FILLS.length], campus: nt.campus, custom: true };
+    this.setState(s => ({ types: [...s.types, t], nt: { label: '', icon: 'work', campus: false }, sheet: s.sheet && s.sheet.mode === 'form' ? { ...s.sheet, type: t.id, ntOpen: false } : s.sheet }));
+    this.toast(`Added "${label}" type`);
+  };
+  copyLastWeek = () => {
+    const w = this.state.weekOffset, me = this.state.me, before = this.state.events;
+    const src = before.filter(e => e.w === w - 1 && e.type === 'lecture' && e.owner === me);
+    const add = src.map((e, i) => ({ ...e, id: 'c' + Date.now() + i, w, people: { [me]: 'going' } }));
+    this.setState({ events: [...before, ...add] });
+    this.toast(`Copied ${add.length} lectures from last week`, () => this.setState({ events: before }));
+  };
+  prev = () => {
+    if (this.view() === 'week') return this.setState(s => ({ weekOffset: s.weekOffset - 1 }));
+    this.setState(s => s.day > 0 ? { day: s.day - 1 } : { day: this.nDays() - 1, weekOffset: s.weekOffset - 1 });
+  };
+  next = () => {
+    if (this.view() === 'week') return this.setState(s => ({ weekOffset: s.weekOffset + 1 }));
+    this.setState(s => s.day < this.nDays() - 1 ? { day: s.day + 1 } : { day: 0, weekOffset: s.weekOffset + 1 });
+  };
+  goToday = () => this.setState({ weekOffset: 0, day: Math.min((new Date().getDay() + 6) % 7, this.nDays() - 1) });
+
+  chipsFor(d) {
+    const me = this.state.me, dr = this.driver(), P = Component.P;
+    const G = { bg: '#d8f0dc', fg: '#1b5e28' }, A = { bg: '#ffe8cc', fg: '#8a4b00' }, N = { bg: '#f6e4bf', fg: '#474238' }, D = { bg: '#111111', fg: '#ffffff' };
+    if (me === dr.id) {
+      const dh = this.hrs(me, d); if (!dh.length) return [{ t: 'Not driving', ...N }];
+      const riders = P.filter(p => !p.drives).filter(p => { const q = this.ride(p.id, d); return q && (q.in.st !== 'no' || q.home.st !== 'no'); }).map(p => p.name);
+      return [{ t: `Driving ${this.fmt(dh[0])}–${this.fmt(dh[dh.length - 1] + 1)}`, ...D }, riders.length ? { t: `${riders.join(' & ')} can ride`, ...G } : { t: 'Nobody riding', ...N }];
+    }
+    const r = this.ride(me, d); if (!r) return [{ t: 'Not on campus', ...N }];
+    const c = (lbl, x) => x.st === 'no' ? { t: `No lift ${lbl}`, ...N } : x.st === 'match' ? { t: `Lift ${lbl} ${this.fmt(x.time)}`, ...G } : { t: `Lift ${lbl} ${this.fmt(x.time)} · ${x.wait}h wait`, ...(x.st === 'long' ? A : G) };
+    return [c('in', r.in), c('home', r.home)];
+  }
+  blockStyle(e, p) {
+    const t = this.typeOf(e.type), inv = e.people[p.id] === 'invited', lec = e.type === 'lecture';
+    return {
+      bg: e.type === 'wait' ? Component.HATCH : inv ? this.stripes(this.fillOf(t)) : this.fillOf(t),
+      bd: inv ? '2px dashed #111111' : '2px solid #111111', sh: inv ? 'none' : '3px 3px 0 #111111',
+      fg: '#111111', op: 1, c7: p.c7, init: p.name[0], t, inv, icon: this.iconOf(t)
+    };
+  }
+
+  sceneEl() {
+    const h = React.createElement, sc = this.state.sc;
+    return h('div', { style: { position: 'absolute', inset: 0 } },
+      sc > 0 ? h('div', { key: 'p' + sc, style: { position: 'absolute', inset: 0 } }, this.scene((sc + 2) % 3)) : null,
+      h('div', { key: 'c' + sc, 'data-anim': 1, style: { position: 'absolute', inset: 0, animation: 'sg-fade 1.2s ease both' } }, this.scene(sc % 3)));
+  }
+  car(x, y, col, moving, lights, s) {
+    const h = React.createElement, glass = lights ? '#2a3550' : '#cfe8f5';
+    const wheel = (cx) => h('g', { transform: `translate(${cx},-30)` }, h('g', { 'data-anim': 1, style: moving ? { animation: 'sg-spin .45s linear infinite', transformBox: 'fill-box', transformOrigin: 'center' } : null },
+      h('circle', { r: 30, fill: '#1a1414' }), h('circle', { r: 15, fill: '#bfb6aa' }), h('rect', { x: -2, y: -15, width: 4, height: 30, fill: '#1a1414' }), h('rect', { x: -15, y: -2, width: 30, height: 4, fill: '#1a1414' })));
+    return h('g', { transform: `translate(${x},${y}) scale(${s})` },
+      lights ? h('path', { d: 'M370,-62 L820,-150 L820,30 Z', fill: 'url(#sgbeam)' }) : null,
+      h('ellipse', { cx: 190, cy: 2, rx: 200, ry: 10, fill: 'rgba(0,0,0,.28)' }),
+      h('g', { 'data-anim': 1, style: moving ? { animation: 'sg-bob .6s ease-in-out infinite' } : null },
+        h('path', { d: 'M8,-40 Q6,-72 40,-78 L96,-84 L146,-128 Q156,-136 176,-136 L268,-136 Q290,-136 306,-118 L342,-84 Q372,-80 374,-56 L374,-36 Q374,-26 362,-26 L10,-26 Q4,-26 8,-40 Z', fill: col }),
+        h('path', { d: 'M156,-124 L188,-124 L188,-88 L112,-88 Z', fill: glass }),
+        h('path', { d: 'M198,-124 L266,-124 Q282,-124 292,-112 L316,-88 L198,-88 Z', fill: glass }),
+        h('rect', { x: 356, y: -70, width: 16, height: 10, rx: 4, fill: lights ? '#fff6c8' : '#ffffff' }),
+        h('rect', { x: 6, y: -64, width: 12, height: 12, rx: 3, fill: '#ff3b3b' })),
+      wheel(86), wheel(292));
+  }
+  scene(i) {
+    const h = React.createElement, W = 1600;
+    const rnd = (n) => { const v = Math.sin(n * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+    const loop = (dur, kids) => h('g', { 'data-anim': 1, style: { animation: `sg-scroll ${dur}s linear infinite` } }, h('g', null, kids), h('g', { transform: `translate(${W},0)` }, kids));
+    const dashes = (fill) => Array.from({ length: 8 }, (_, k) => h('rect', { key: k, x: k * 200, y: 815, width: 100, height: 8, rx: 4, fill }));
+    const grad = (id, a, b, c) => h('linearGradient', { id, x1: 0, y1: 0, x2: 0, y2: 1 }, h('stop', { offset: 0, stopColor: a }), h('stop', { offset: 0.6, stopColor: b }), h('stop', { offset: 1, stopColor: c }));
+    const svg = (...k) => h('svg', { viewBox: '0 0 1600 900', preserveAspectRatio: 'xMidYMax slice', style: { width: '100%', height: '100%', display: 'block' } }, ...k);
+    const bubble = (L, col) => h('g', null, h('circle', { r: 40, fill: col, stroke: '#fff', strokeWidth: 5 }), h('text', { y: 14, textAnchor: 'middle', fontSize: 40, fontWeight: 700, fill: '#fff', style: { fontFamily: 'Bricolage Grotesque, sans-serif' } }, L));
+    if (i === 0) {
+      const trees = Array.from({ length: 11 }, (_, k) => { const s = 0.7 + rnd(k) * 0.6; return h('g', { key: k, transform: `translate(${40 + k * 145},740) scale(${s})` }, h('rect', { x: -6, y: -40, width: 12, height: 40, fill: '#2b1330' }), h('path', { d: 'M0,-160 L48,-40 L-48,-40 Z', fill: '#3b1a40' })); });
+      return svg(h('defs', null, grad('sg1', '#3d1f5c', '#c2477a', '#ffb36b')),
+        h('rect', { width: W, height: 900, fill: 'url(#sg1)' }),
+        h('circle', { cx: 1150, cy: 600, r: 150, fill: '#ffd9a0', opacity: 0.9 }),
+        loop(120, h('path', { d: 'M0,650 Q200,560 400,620 T800,610 T1200,620 T1600,650 L1600,760 L0,760 Z', fill: '#9a3b74' })),
+        loop(50, h('path', { d: 'M0,700 Q150,630 300,680 T600,670 T900,690 T1200,660 T1600,700 L1600,760 L0,760 Z', fill: '#61285a' })),
+        loop(16, trees),
+        h('rect', { y: 740, width: W, height: 160, fill: '#231623' }),
+        loop(1.4, dashes('#f5d9a8')),
+        this.car(900, 850, '#d9480f', true, false, 1.25));
+    }
+    if (i === 1) {
+      const stars = Array.from({ length: 70 }, (_, n) => h('circle', { key: n, cx: rnd(n) * W, cy: rnd(n + 100) * 440, r: 0.8 + rnd(n + 200) * 1.6, fill: '#fff', 'data-anim': 1, style: n % 3 ? null : { animation: `sg-tw 3s ease-in-out ${rnd(n + 300) * 3}s infinite` } }));
+      const bld = []; let x = 0, k = 0;
+      while (x < W) {
+        const w = Math.min(80 + rnd(k) * 80, W - x), ht = 140 + rnd(k + 50) * 260;
+        bld.push(h('rect', { key: 'b' + k, x, y: 740 - ht, width: w, height: ht, fill: '#121b38' }));
+        for (let j = 0; j < 9; j++) if (rnd(k * 10 + j) > 0.55) bld.push(h('rect', { key: 'w' + k + '-' + j, x: x + 12 + (j % 3) * ((w - 24) / 3), y: 740 - ht + 18 + Math.floor(j / 3) * 34, width: 10, height: 14, fill: '#ffd66b', opacity: 0.85 }));
+        x += w + 6; k++;
+      }
+      const lamps = [100, 500, 900, 1300].map(lx => h('g', { key: lx }, h('circle', { cx: lx - 36, cy: 512, r: 80, fill: '#ffd98a', opacity: 0.12 }), h('rect', { x: lx, y: 500, width: 8, height: 240, fill: '#2a3358' }), h('rect', { x: lx - 44, y: 498, width: 52, height: 6, rx: 3, fill: '#2a3358' }), h('circle', { cx: lx - 36, cy: 510, r: 8, fill: '#ffe9a8' })));
+      return svg(h('defs', null, grad('sg2', '#060a1c', '#131f45', '#27386b'), h('linearGradient', { id: 'sgbeam', x1: 0, y1: 0, x2: 1, y2: 0 }, h('stop', { offset: 0, stopColor: '#fff0be', stopOpacity: 0.55 }), h('stop', { offset: 1, stopColor: '#fff0be', stopOpacity: 0 }))),
+        h('rect', { width: W, height: 900, fill: 'url(#sg2)' }), stars,
+        h('circle', { cx: 1320, cy: 150, r: 90, fill: '#f4efd8', opacity: 0.12 }), h('circle', { cx: 1320, cy: 150, r: 48, fill: '#f4efd8' }),
+        loop(60, bld), h('rect', { y: 740, width: W, height: 160, fill: '#0b0f1d' }), loop(4, lamps), loop(1.2, dashes('#8a8778')),
+        this.car(760, 850, '#efe7da', true, true, 1.25));
+    }
+    const clouds = [[200, 170], [720, 110], [1240, 200]].map(([cx, cy], k) => h('g', { key: k, fill: '#fff', opacity: 0.9 }, h('ellipse', { cx, cy, rx: 90, ry: 34 }), h('ellipse', { cx: cx + 60, cy: cy - 20, rx: 60, ry: 34 }), h('ellipse', { cx: cx - 50, cy: cy - 10, rx: 50, ry: 26 })));
+    const runner = (L, col, x, dur, delay) => h('g', { transform: `translate(${x},700)` }, h('g', { 'data-anim': 1, style: { animation: `sg-in ${dur}s cubic-bezier(.2,.8,.3,1) ${delay}s both` } }, bubble(L, col)));
+    const speech = (x, y, w, txt, font, size, tail, delay) => h('g', { transform: `translate(${x},${y})` }, h('g', { 'data-anim': 1, style: { animation: `sg-pop .5s ease-out ${delay}s both`, transformBox: 'fill-box', transformOrigin: '20% 100%' } },
+      h('path', { d: tail, fill: '#fff' }), h('rect', { x: 0, y: -84, width: w, height: 84, rx: 42, fill: '#fff' }),
+      h('text', { x: w / 2, y: -28, textAnchor: 'middle', fontSize: size, fill: '#111111', style: { fontFamily: font } }, txt)));
+    return svg(h('defs', null, grad('sg3', '#6fbde6', '#bfe3f3', '#eaf6fb')),
+      h('rect', { width: W, height: 900, fill: 'url(#sg3)' }), loop(90, clouds),
+      h('g', null, h('rect', { x: 1180, y: 470, width: 320, height: 270, fill: '#f2d0a4' }), h('path', { d: 'M1155,480 L1340,350 L1525,480 Z', fill: '#9c3d1f' }), h('rect', { x: 1310, y: 610, width: 64, height: 130, rx: 6, fill: '#6b3a1f' }), h('rect', { x: 1210, y: 520, width: 70, height: 60, rx: 6, fill: '#cfe8f5' }), h('rect', { x: 1400, y: 520, width: 70, height: 60, rx: 6, fill: '#cfe8f5' })),
+      h('rect', { y: 740, width: W, height: 160, fill: '#86b96f' }),
+      h('path', { d: 'M420,740 L1360,740 L1480,900 L300,900 Z', fill: '#d6cdbd' }),
+      this.car(620, 850, '#d9480f', false, false, 1.25),
+      h('g', { transform: 'translate(1180,700)' }, h('g', { 'data-anim': 1, style: { animation: 'sg-hop .8s ease-in-out infinite' } }, bubble('D', '#d9480f'))),
+      runner('T', '#5f3dc4', 880, 1.3, 0), runner('G', '#2b8a3e', 420, 2.2, 0.5),
+      speech(880, 590, 330, 'SHOTGUN!', 'Bricolage Grotesque, sans-serif', 48, 'M20,-10 L-10,50 L70,-10 Z', 1.3),
+      speech(250, 590, 250, 'not again…', 'Bricolage Grotesque, sans-serif', 28, 'M150,-10 L170,48 L200,-10 Z', 2.8));
+  }
+
+  renderVals() {
+    const s = this.state, P = Component.P.map(p => this.deco(p)), H = Component.H, DOW = Component.DOW;
+    const view = this.view(), nd = this.nDays(), me = s.me, meP = this.person(me), dr = this.driver();
+    const mob = this.isMob(), day = Math.min(s.day, nd - 1), tIdx = this.todayIdx();
+    const now = new Date(), nowH = now.getHours();
+    const segOn = { bg: '#ffffff', fg: '#111111', sh: '2px 2px 0 #111111' }, segOff = { bg: 'transparent', fg: '#5a5247', sh: 'none' };
+    const mo = (x) => x.toLocaleDateString('en-GB', { month: 'short' });
+    const dt = this.dateOf(day), mon = this.dateOf(0), end = this.dateOf(nd - 1);
+    const dateLabel = view === 'day' ? `${DOW[day]} ${dt.getDate()} ${mo(dt)}` : `${mon.getDate()}${mo(mon) !== mo(end) ? ' ' + mo(mon) : ''} – ${end.getDate()} ${mo(end)}`;
+    const showTodayBtn = view === 'day' ? !(s.weekOffset === 0 && day === Math.min(Math.max(tIdx, 0), nd - 1)) : s.weekOffset !== 0;
+    const rowPx = mob ? 50 : 52;
+
+    // ---- day view
+    const dayCols = P.map(p => ({ ...p, initial: p.name[0], label: p.id === me ? 'You' : (mob ? p.name.slice(0, 6) : p.name), drives: !!p.drives, headBg: p.id === me ? p.c1 : 'transparent' }));
+    const hourLabels = H.map((h, i) => ({ row: i + 1, t: this.fmt(h), c: tIdx === day && nowH === h ? '#8c491a' : '#5a5247' }));
+    const dayCells = [];
+    P.forEach((p, pi) => H.forEach((h, hi) => dayCells.push({ p: p.id, d: day, h, col: pi + 2, row: hi + 1, bg: p.id === me ? '#fff4dc80' : 'transparent', hov: p.id === me ? meP.c1 : '#1111110a' })));
+    const dayBlocks = [];
+    P.forEach((p, pi) => {
+      const rr = p.drives ? null : this.ride(p.id, day), dh = p.drives ? this.hrs(p.id, day) : [];
+      this.evs(p.id, day, true).forEach(e => {
+        const st = this.blockStyle(e, p), a = e.start, z = e.start + e.dur;
+        const others = Object.keys(e.people).filter(x => x !== p.id && e.people[x] === 'going').map(x => this.person(x).name);
+        let car = '';
+        if (st.t.campus && !st.inv) {
+          const has = (h) => h >= a && h < z;
+          if (p.drives && dh.length) { const i = has(dh[0]), o = has(dh[dh.length - 1]); car = i && o ? 'in · home' : i ? 'in' : o ? 'home' : ''; }
+          else if (rr && !rr.off) { const i = rr.in.st !== 'no' && has(rr.mF), o = rr.home.st !== 'no' && has(rr.mL - 1); car = i && o ? 'in · home' : i ? 'lift in' : o ? 'lift home' : ''; }
+        }
+        dayBlocks.push({
+          id: e.id, col: String(pi + 2), row: `${a - 6} / span ${e.dur}`, pe: 'auto', ...st,
+          title: this.label(e), tag: st.inv ? 'Invited' : '', tagBg: '#111111',
+          sub: `${this.fmt(a)}–${this.fmt(z)}${others.length ? ' · with ' + others.join(', ') : ''}`, car
+        });
+      });
+    });
+    if (me !== dr.id) {
+      const r = this.ride(me, day), pi = P.findIndex(p => p.id === me), busy = new Set();
+      this.evs(me, day, true).forEach(e => { for (let h = e.start; h < e.start + e.dur; h++) busy.add(h); });
+      const ghost = (a, z, txt) => { const hs = []; for (let h = a; h < z; h++) if (!busy.has(h)) hs.push(h); if (!hs.length) return; dayBlocks.push({ id: '', col: String(pi + 2), row: `${hs[0] - 6} / span ${hs.length}`, pe: 'none', bg: Component.HATCH, bd: '2px dashed #111111', sh: 'none', fg: '#111111', op: 0.75, icon: Component.IC.wait, c7: meP.c7, init: meP.name[0], title: txt, tag: '', tagBg: '', sub: 'Suggested', car: '' }); };
+      if (r && !r.off) {
+        if (r.in.st === 'wait' || r.in.st === 'long') ghost(r.dF, r.mF, `Wait · lift in ${this.fmt(r.dF)}`);
+        if (r.home.st === 'wait' || r.home.st === 'long') ghost(r.mL, r.dL, `Wait · lift home ${this.fmt(r.dL)}`);
+      }
+    }
+    const sel = s.sel, selPi = sel ? P.findIndex(p => p.id === sel.p) : -1;
+    const daySel = sel && view === 'day' && sel.d === day ? { on: true, col: String(selPi + 2), row: `${sel.s - 6} / span ${sel.e - sel.s + 1}`, text: `${this.fmt(sel.s)}–${this.fmt(sel.e + 1)}` } : { on: false };
+    const nowLine = tIdx === day && nowH >= 7 && nowH < 22 ? { on: true, row: String(nowH - 6), top: Math.round(now.getMinutes() / 60 * rowPx) + 'px' } : { on: false };
+
+    // ---- week view
+    const wRow = mob ? 44 : 48;
+    const weekTpl = `${mob ? 26 : 48}px repeat(${nd},minmax(0,1fr))`;
+    const weekHours = H.map(h => ({ t: mob ? String(h) : this.fmt(h), hgt: wRow + 'px' }));
+    const weekHeads = Array.from({ length: nd }, (_, d) => {
+      const x = this.dateOf(d), isT = d === tIdx;
+      let ride = '';
+      if (me === dr.id) ride = this.hrs(me, d).length ? 'driving' : '';
+      else { const r = this.ride(me, d); if (r) { const i = r.in.st !== 'no', o = r.home.st !== 'no'; ride = i && o ? (mob ? '✓' : 'in & home') : i ? 'in' : o ? 'home' : (mob ? '✕' : 'no lift'); } }
+      return { dow: DOW[d].toUpperCase(), num: String(x.getDate()), numBg: isT ? '#ff4d2e' : 'transparent', numFg: isT ? '#ffffff' : '#111111', ride, hasRide: !!ride, rideFg: ride === 'no lift' || ride === '✕' ? '#8a8174' : '#1b5e28', open: () => this.setState({ view: 'day', day: d }) };
+    });
+    const weekCols = Array.from({ length: nd }, (_, d) => {
+      const list = s.events.filter(e => e.w === s.weekOffset && e.d === d && Object.values(e.people).some(v => v === 'going' || v === 'invited')).sort((a, b) => a.start - b.start || b.dur - a.dur);
+      const placed = []; let cluster = [], cEnd = -1, ends = [];
+      const flush = () => { const n = Math.max(1, ...cluster.map(c => c.col + 1)); cluster.forEach(c => { c.n = n; }); cluster = []; ends = []; cEnd = -1; };
+      list.forEach(e => {
+        if (cluster.length && e.start >= cEnd) flush();
+        let c = ends.findIndex(x => x <= e.start); if (c < 0) { c = ends.length; ends.push(0); }
+        ends[c] = e.start + e.dur; cEnd = Math.max(cEnd, e.start + e.dur);
+        const it = { e, col: c }; cluster.push(it); placed.push(it);
+      });
+      if (cluster.length) flush();
+      const evs = placed.map(({ e, col, n }) => {
+        const t = this.typeOf(e.type), lec = e.type === 'lecture', my = e.people[me];
+        return {
+          id: e.id, top: ((e.start - 7) * wRow + 1) + 'px', hgt: (e.dur * wRow - 3) + 'px',
+          left: `calc(${(col / n) * 100}% + 2px)`, wid: `calc(${100 / n}% - 4px)`,
+          bg: e.type === 'wait' ? Component.HATCH : my === 'invited' ? this.stripes(this.fillOf(t)) : this.fillOf(t),
+          bd: my === 'invited' ? '1.5px dashed #111111' : '1.5px solid #111111', sh: my === 'going' ? '2px 2px 0 #111111' : 'none',
+          pad: mob && n >= 2 ? '3px 0' : '3px 5px', align: mob && n >= 2 ? 'center' : 'flex-start', fdir: mob && n >= 2 ? 'column' : 'row', showTitle: !(mob && n >= 2),
+          icon: this.iconOf(t), title: this.label(e), time: `${this.fmt(e.start)}–${this.fmt(e.start + e.dur)}`, showTime: e.dur > 1 && !mob && n < 3,
+          faces: Object.keys(e.people).filter(x => e.people[x] === 'going' || e.people[x] === 'invited').map(id => { const p = this.person(id); return { c7: p.c7, initial: p.name[0], op: e.people[id] === 'invited' ? 0.45 : 1 }; })
+        };
+      });
+      const wsel = sel && view === 'week' && sel.d === d ? { on: true, top: ((sel.s - 7) * wRow + 1) + 'px', hgt: ((sel.e - sel.s + 1) * wRow - 3) + 'px' } : { on: false };
+      const nowOn = d === tIdx && nowH >= 7 && nowH < 22;
+      return { evs, slots: H.map(h => ({ p: me, d, h, hgt: wRow + 'px' })), sel: wsel, bg: d === tIdx ? '#fff0c9' : 'transparent', nowOn, nowTop: nowOn ? Math.round((nowH - 7 + now.getMinutes() / 60) * wRow) + 'px' : '0px' };
+    });
+
+    const agenda = Array.from({ length: nd }, (_, d) => {
+      const x = this.dateOf(d), isT = d === tIdx, wh = weekHeads[d];
+      const items = s.events.filter(e => e.w === s.weekOffset && e.d === d && Object.values(e.people).some(v => v === 'going' || v === 'invited')).sort((a, b) => a.start - b.start).map(e => {
+        const t = this.typeOf(e.type), my = e.people[me];
+        return {
+          title: this.label(e), time: `${this.fmt(e.start)}–${this.fmt(e.start + e.dur)} · ${t.label}${my === 'invited' ? ' · invited' : ''}`,
+          icon: this.iconOf(t), fill: e.type === 'wait' ? Component.HATCH : this.fillOf(t),
+          bg: my === 'invited' ? '#fff8e6' : '#ffffff', bd: my === 'invited' ? '2px dashed #111111' : '2px solid transparent',
+          faces: Object.keys(e.people).filter(k => e.people[k] === 'going' || e.people[k] === 'invited').map(id => { const p = this.person(id); return { c7: p.c7, initial: p.name[0], op: e.people[id] === 'invited' ? 0.45 : 1 }; }),
+          open: () => this.openView(e.id)
+        };
+      });
+      const noLift = wh.ride === '✕';
+      return {
+        dow: DOW[d].toUpperCase(), num: String(x.getDate()), numBg: isT ? '#ff4d2e' : 'transparent', numFg: isT ? '#ffffff' : '#111111',
+        hasRide: !!wh.ride, ride: me === dr.id ? 'Driving' : wh.ride === '✓' ? 'Lift in & home' : noLift ? 'No lift' : `Lift ${wh.ride} only`,
+        rideBg: noLift ? '#f6e4bf' : '#d8f0dc', rideFg: noLift ? '#474238' : '#1b5e28',
+        items, empty: !items.length, open: () => this.setState({ view: 'day', day: d }), add: () => this.openNew({ d, start: 9 })
+      };
+    });
+
+    // ---- rail
+    const railSub = `${dt.getDate()} ${dt.toLocaleDateString('en-GB', { month: 'long' })}${tIdx === day ? ' · today' : ''}`;
+    const house = P.filter(p => p.id !== me).map(p => {
+      let line, chips = [];
+      if (p.drives) { const dh = this.hrs(p.id, day); line = dh.length ? `Drives in ${this.fmt(dh[0])}, home ${this.fmt(dh[dh.length - 1] + 1)}` : 'Not driving today'; }
+      else {
+        const q = this.ride(p.id, day);
+        if (!q) line = 'Not on campus';
+        else { line = `On campus ${this.fmt(q.mF)}–${this.fmt(q.mL)}`; const ch = (l, x) => x.st === 'no' ? { t: `${l} ✕`, bg: '#ffffff', fg: '#5a5247' } : { t: `${l} ✓`, bg: '#d8f0dc', fg: '#1b5e28' }; chips = [ch('in', q.in), ch('home', q.home)]; }
+      }
+      return { ...p, initial: p.name[0], line, chips };
+    });
+    const dayActs = s.events.filter(e => e.w === s.weekOffset && e.d === day && e.type !== 'lecture' && Object.values(e.people).some(v => v !== 'declined')).sort((a, b) => a.start - b.start).map(e => {
+      const t = this.typeOf(e.type);
+      return {
+        title: this.label(e), type: t.label, icon: this.iconOf(t), fill: this.fillOf(t),
+        meta: `${t.label} · ${this.fmt(e.start)}–${this.fmt(e.start + e.dur)}${e.people[dr.id] === 'going' && !t.campus ? ` · ${dr.name} going, so car` : ''}${e.people[me] === 'invited' ? ' · you\'re invited' : ''}`,
+        faces: Object.keys(e.people).filter(x => e.people[x] !== 'declined').map(id => { const p = this.person(id), inv = e.people[id] === 'invited'; return { c7: p.c7, initial: p.name[0], op: inv ? 0.55 : 1, bs: inv ? 'dashed' : 'solid', bc: inv ? p.c7 : '#ffffff' }; }),
+        open: () => this.openView(e.id)
+      };
+    });
+
+    // ---- invites
+    const invites = s.events.filter(e => e.people[me] === 'invited' && e.w >= 0).sort((a, b) => a.w - b.w || a.d - b.d || a.start - b.start).map(e => {
+      const o = this.person(e.owner), x = this.dateOf(e.d, e.w);
+      return { c7: '#474238', from: o.name[0], line: `${o.name} invited you`, title: `${this.label(e)} · ${this.typeOf(e.type).label}`, when: `${Component.DOWL[e.d]} ${x.getDate()} ${mo(x)} · ${this.fmt(e.start)}–${this.fmt(e.start + e.dur)}`,
+        open: () => this.openView(e.id), accept: () => this.setStatus(e.id, me, 'going', `You're in for ${this.label(e)}`), decline: () => this.setStatus(e.id, me, 'declined', `Declined ${this.label(e)}`) };
+    });
+
+    // ---- sheet
+    if (s.sheet) this.last = s.sheet;
+    const L = this.last || { mode: 'form', d: 0, start: 9, dur: 1, type: 'lecture', title: '', invite: [] };
+    const open = !!s.sheet;
+    const pos = mob
+      ? { top: 'auto', right: '0px', bottom: '0px', left: '0px', width: 'auto', maxH: '90vh', rad: '28px 28px 0 0', tf: open ? 'translateY(0)' : 'translateY(105%)' }
+      : { top: '16px', right: '16px', bottom: '16px', left: 'auto', width: '430px', maxH: 'none', rad: '28px', tf: open ? 'translateX(0)' : 'translateX(calc(100% + 40px))' };
+    const nt = s.nt;
+    const f = { types: [], dayOpts: [], startOpts: [], people: [] };
+    const v = { people: [], actions: [] };
+    let heading = '';
+    const ntFields = {
+      ntOpen: !!L.ntOpen, ntLabel: nt.label, setNtLabel: (e) => this.setState({ nt: { ...this.state.nt, label: e.target.value } }),
+      icons: Component.CUSTOM_ICONS.map(k => ({ icon: Component.IC[k], bg: nt.icon === k ? '#111111' : '#ffffff', fg: nt.icon === k ? '#ffffff' : '#111111', pick: () => this.setState({ nt: { ...this.state.nt, icon: k } }) })),
+      toggleNtCampus: () => this.setState({ nt: { ...this.state.nt, campus: !this.state.nt.campus } }),
+      ntCampusBg: nt.campus ? '#111111' : '#e8d9b8', ntCampusFg: nt.campus ? '#ffffff' : '#474238', addNt: this.addType
+    };
+    Object.assign(f, ntFields);
+    if (L.mode === 'form') {
+      const t = this.typeOf(L.type), editing = !!L.id;
+      heading = editing ? 'Edit' : 'Add to your calendar';
+      const x = this.dateOf(L.d);
+      const clash = s.events.find(e => e.id !== L.id && e.w === s.weekOffset && e.d === L.d && e.people[me] === 'going' && e.start < L.start + L.dur && L.start < e.start + e.dur);
+      const inclDr = me === dr.id || L.invite.includes(dr.id);
+      Object.assign(f, {
+        types: this.allTypes().map(tt => { const on = tt.id === L.type; return { label: tt.label, icon: this.iconOf(tt), bg: tt.id === 'wait' ? '#ffffff' : this.fillOf(tt), fg: '#111111', bd: on ? '2px solid #111111' : '2px solid transparent', sh: on ? '3px 3px 0 #111111' : 'none', op: on ? 1 : 0.85, pick: () => this.setF({ type: tt.id }) }; }),
+        toggleNt: () => this.setF({ ntOpen: !this.state.sheet.ntOpen }),
+        title: L.title, setTitle: (e) => this.setF({ title: e.target.value }),
+        placeholder: ({ lecture: 'Module name (optional)', social: 'Night out, dinner, film…', groceries: 'Big shop, Aldi run…', gym: 'Legs day, swim…', society: 'Which society?', exam: 'Which exam?', wait: 'e.g. Library until the lift' })[L.type] || `Name this ${t.label.toLowerCase()} (optional)`,
+        dayOpts: DOW.slice(0, nd).map((l, i) => ({ v: String(i), t: `${Component.DOWL[i]}`, sel: i === L.d })),
+        setDay: (e) => this.setF({ d: +e.target.value }),
+        startOpts: H.map(h => ({ v: String(h), t: this.fmt(h), sel: h === L.start })),
+        setStart: (e) => { const st = +e.target.value; this.setF({ start: st, dur: Math.min(this.state.sheet.dur, 22 - st) }); },
+        durLabel: L.dur === 1 ? '1 hour' : `${L.dur} hours`,
+        durMinus: () => this.setF({ dur: Math.max(1, this.state.sheet.dur - 1) }), durPlus: () => this.setF({ dur: Math.min(22 - this.state.sheet.start, this.state.sheet.dur + 1) }),
+        minusOp: L.dur > 1 ? 1 : 0.35, plusOp: L.start + L.dur < 22 ? 1 : 0.35,
+        whenText: `${Component.DOWL[L.d]} ${x.getDate()} ${mo(x)} · ${this.fmt(L.start)}–${this.fmt(L.start + L.dur)}`,
+        conflict: clash ? `Clashes with ${this.label(clash)} (${this.fmt(clash.start)}–${this.fmt(clash.start + clash.dur)})` : '',
+        people: P.map(p => {
+          if (p.id === me) return { ...p, initial: p.name[0], name: 'You', status: 'Going', bs: 'solid', bc: p.c7, bg: p.c1, pick: () => {} };
+          const on = L.invite.includes(p.id);
+          return { ...p, initial: p.name[0], status: on ? 'Invited ✓' : 'Tap to invite', bs: on ? 'solid' : 'dashed', bc: on ? p.c7 : '#111111', bg: on ? p.c1 : 'transparent', pick: () => { const inv = this.state.sheet.invite; this.setF({ invite: inv.includes(p.id) ? inv.filter(q => q !== p.id) : [...inv, p.id] }); } };
+        }),
+        note: (L.invite.length ? 'They\'ll get an invite to accept or decline. ' : 'Anyone can still join later. ') + (t.campus ? 'Counts towards lifts.' : inclDr ? `${dr.name}'s in, so there's a car.` : `No car unless ${dr.name} joins.`),
+        canDelete: editing, del: () => this.del(L.id), save: this.save,
+        saveLabel: editing ? 'Save' : `Add ${t.label.toLowerCase()}`
+      });
+    } else if (L.mode === 'view') {
+      const e = s.events.find(x => x.id === L.id);
+      if (e) {
+        const t = this.typeOf(e.type), x = this.dateOf(e.d, e.w), st = e.people[me], own = e.owner === me;
+        heading = this.label(e);
+        const going = (id) => e.people[id] === 'going';
+        Object.assign(v, {
+          type: t.label, icon: this.iconOf(t), fill: this.fillOf(t), campus: !!t.campus,
+          when: `${Component.DOWL[e.d]} ${x.getDate()} ${mo(x)} · ${this.fmt(e.start)}–${this.fmt(e.start + e.dur)}`,
+          carNote: !t.campus ? (going(dr.id) ? `${dr.name} is going, so there's a car.` : `${dr.name} isn't going, so no car.`) : '',
+          people: P.map(p => {
+            const ps = e.people[p.id], isO = e.owner === p.id;
+            const S = isO ? ['Organiser', '#111111', '#ffffff'] : ps === 'going' ? ['Going', '#d8f0dc', '#1b5e28'] : ps === 'invited' ? ['Invited · waiting', '#ffe8cc', '#8a4b00'] : ps === 'declined' ? ['Declined', '#f6e4bf', '#5a5247'] : ['Not in', 'transparent', '#5a5247'];
+            return { c7: p.c7, initial: p.name[0], name: p.id === me ? `${p.name} (you)` : p.name, status: S[0], bg: S[1], fg: S[2], op: ps === 'going' || isO ? 1 : 0.5, canInvite: own && !ps, invite: () => this.setStatus(e.id, p.id, 'invited', `Invited ${p.name}`) };
+          }),
+          actions: (() => {
+            const pri = { bd: 'none', bg: '#ff4d2e', fg: '#fff' }, sec = { bd: '2px solid #111111', bg: 'transparent', fg: '#111111' }, dan = { bd: 'none', bg: '#fff2eb', fg: '#8c491a' };
+            if (own) return [{ label: 'Edit', ...sec, fn: () => this.openEdit(e.id) }, { label: 'Delete', ...dan, fn: () => this.del(e.id) }];
+            if (st === 'invited') return [{ label: 'Decline', ...sec, fn: () => this.setStatus(e.id, me, 'declined', 'Declined') }, { label: 'Accept', ...pri, fn: () => this.setStatus(e.id, me, 'going', `You're in for ${this.label(e)}`) }];
+            if (st === 'going') return [{ label: 'Leave', ...sec, fn: () => this.setStatus(e.id, me, null, `Left ${this.label(e)}`) }];
+            if (st === 'declined') return [{ label: 'Join after all', ...pri, fn: () => this.setStatus(e.id, me, 'going', `You're in for ${this.label(e)}`) }];
+            return [{ label: 'Join', ...pri, fn: () => this.setStatus(e.id, me, 'going', `You joined ${this.label(e)}`) }];
+          })()
+        });
+      }
+    } else heading = 'Slot types';
+    const tm = {
+      list: this.allTypes().map(t => ({
+        label: t.label, custom: !!t.custom, icon: this.iconOf(t), bg: t.id === 'wait' ? Component.HATCH : this.fillOf(t), bd: `2px solid ${t.id === 'lecture' ? '#111111' : t.col}`, cur: t.custom ? 'pointer' : 'default',
+        campusText: t.campus ? 'On campus' : 'Off campus', campusBg: t.campus ? '#111111' : '#f6e4bf', campusFg: t.campus ? '#ffffff' : '#474238',
+        cycle: () => { if (!t.custom) return; const L2 = Component.CUSTOM_ICONS, i = (L2.indexOf(t.icon) + 1) % L2.length; this.setState(st => ({ types: st.types.map(y => y.id === t.id ? { ...y, icon: L2[i] } : y) })); },
+        toggleCampus: () => { if (!t.custom) return; this.setState(st => ({ types: st.types.map(y => y.id === t.id ? { ...y, campus: !y.campus } : y) })); },
+        del: () => { const before = { types: s.types, events: s.events }; this.setState(st => ({ types: st.types.filter(y => y.id !== t.id), events: st.events.map(e => e.type === t.id ? { ...e, type: 'other' } : e) })); this.toast(`Deleted "${t.label}"`, () => this.setState(before)); }
+      }))
+    };
+
+    const tt = s.toast;
+    return {
+      showSignIn: !this.signedIn(), showApp: this.signedIn(),
+      scene: this.signedIn() ? null : this.sceneEl(),
+      sceneDots: [0, 1, 2].map(i => ({ label: ['Dusk drive', 'Night drive', 'Calling shotgun'][i], w: s.sc % 3 === i ? '26px' : '8px', bg: s.sc % 3 === i ? '#ffffff' : 'rgba(249,244,237,.4)', pick: () => this.setState(x => ({ sc: x.sc - (x.sc % 3) + 3 + i })) })),
+      signIn: () => { this.setState({ signedIn: true }); this.toast(`Signed in as ${meP.name}`); },
+      signOut: () => this.setState({ signedIn: false, menu: false }),
+      resetDemo: () => { const sd = this.seed(), before = { events: s.events, types: s.types }; this.setState({ ...sd, menu: false }); this.toast('Demo data reset', () => this.setState(before)); },
+      isMob: mob, isDesk: !mob, showFab: mob && !open, padBottom: mob ? '90px' : '0px',
+      segDay: view === 'day' ? segOn : segOff, segWeek: view === 'week' ? segOn : segOff,
+      setDay: () => this.setState({ view: 'day' }), setWeek: () => this.setState({ view: 'week' }),
+      prev: this.prev, next: this.next, goToday: this.goToday, showTodayBtn, dateLabel,
+      isDay: view === 'day', isWeek: view === 'week',
+      hint: view === 'day'
+        ? (mob ? 'Tap an empty hour to add anything. Tap a block for details.' : 'Click an empty hour (or drag down your column) to add anything. Tap someone else\'s column to invite them.')
+        : (mob ? 'Tap an empty hour to add. Tap a date to open that day.' : 'Click an empty hour to add. Click a date to open that day.'),
+      meP: { ...meP, initial: meP.name[0], email: `${meP.name.toLowerCase()}@student.uni.ac.uk` },
+      toggleMenu: () => this.setState(x => ({ menu: !x.menu })),
+      menu: { display: s.menu ? 'block' : 'none', op: s.menu ? 1 : 0, pe: s.menu ? 'auto' : 'none', tf: s.menu ? 'translateY(0)' : 'translateY(-8px)' },
+      switcher: P.map(p => ({ ...p, initial: p.name[0], bg: p.id === me ? p.c1 : 'transparent', pick: () => { this.setState({ me: p.id, menu: false }); this.toast(`Previewing as ${p.name}`); } })),
+      openTypes: () => this.setState({ menu: false, sheet: { mode: 'types' } }),
+      onDown: this.onDown, openNewBtn: () => this.openNew(),
+      copyLastWeek: this.copyLastWeek,
+      canCopy: !s.events.some(e => e.w === s.weekOffset && e.owner === me && e.type === 'lecture') && s.events.some(e => e.w === s.weekOffset - 1 && e.owner === me && e.type === 'lecture'),
+      dayColsTpl: `${mob ? 40 : 48}px repeat(3,minmax(0,1fr))`, rowH: rowPx + 'px',
+      dayCols, hourLabels, dayCells, dayBlocks, daySel, nowLine,
+      weekTpl, weekHours, weekHeads, weekCols, agenda,
+      railTitle: Component.DOWL[day], railSub, house, dayActs,
+      hasInvites: invites.length > 0, invites,
+      sh: { ...pos, op: open ? 1 : 0, pe: open ? 'auto' : 'none', heading, isForm: L.mode === 'form', isView: L.mode === 'view', isTypes: L.mode === 'types' },
+      closeSheet: () => this.setState({ sheet: null }),
+      f, v, tm,
+      toast: { msg: tt ? tt.msg : '', hasUndo: !!(tt && tt.undo), op: tt ? 1 : 0, pe: tt ? 'auto' : 'none', tf: tt ? 'translate(-50%,0)' : 'translate(-50%,16px)', bottom: mob ? '96px' : '24px' },
+      undo: () => { const u = tt && tt.undo; if (u) u(); this.setState({ toast: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
