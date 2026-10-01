@@ -1980,6 +1980,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
           Continue with Google
         </button>
         <span style="font-size:13px;color:#d8ccbb">Only Tolu, George and Dhiyanick can join this house.</span>
+        <sc-if value="{{ authMsg }}"><span role="alert" style="font-size:14px;font-weight:600;color:#111111;background:#ffd23f;border-radius:14px;padding:8px 12px;max-width:420px">{{ authMsg }}</span></sc-if>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <sc-for list="{{ sceneDots }}" as="sd"><button onClick="{{ sd.pick }}" aria-label="{{ sd.label }}" style="height:8px;width:{{ sd.w }};border-radius:999px;border:none;padding:0;cursor:pointer;background:{{ sd.bg }};transition:width .3s,background .3s"></button></sc-for>
@@ -2214,7 +2215,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
     </sc-for>
   </div>
   <button onClick="{{ openTypes }}" style="border:none;background:transparent;text-align:left;padding:10px;border-radius:12px;font-size:14px;cursor:pointer;color:#111111;font-weight:600" style-hover="background:#eee7db">Slot types…</button>
-  <button onClick="{{ resetDemo }}" style="border:none;background:transparent;text-align:left;padding:10px;border-radius:12px;font-size:14px;cursor:pointer;color:#111111" style-hover="background:#eee7db">Reset demo data</button>
+  
   <button onClick="{{ signOut }}" style="border:none;background:transparent;text-align:left;padding:10px;border-radius:12px;font-size:14px;cursor:pointer;color:#8c491a;font-weight:600" style-hover="background:#fff2eb">Sign out</button>
 </div>
 
@@ -2415,23 +2416,85 @@ class Component extends DCLogic {
   }
 
   state = (() => {
-    const sd = this.seed();
-    return { sc: 0, signedIn: null, me: 'tolu', view: null, weekOffset: 0, day: Math.min((new Date().getDay() + 6) % 7, 4), events: sd.events, types: sd.types, sheet: null, menu: false, toast: null, w: typeof window !== 'undefined' ? window.innerWidth : 1200, sel: null, nt: { label: '', icon: 'work', campus: false } };
+    let v = null; try { v = localStorage.getItem('shotgun-view') || null; } catch (e) {}
+    return { sc: 0, signedIn: false, authReady: false, authMsg: '', email: '', me: 'tolu', view: v, weekOffset: 0, day: Math.min((new Date().getDay() + 6) % 7, 4), events: [], types: [], sheet: null, menu: false, toast: null, w: typeof window !== 'undefined' ? window.innerWidth : 1200, sel: null, nt: { label: '', icon: 'work', campus: false } };
   })();
 
-  load(sync) {
-    try {
-      const raw = localStorage.getItem(Component.KEY);
-      if (raw) { const o = JSON.parse(raw); this.syncing = true; this.setState({ events: o.events || this.state.events, types: o.types || [] }, () => { this.syncing = false; }); }
-      if (!sync && !this.asP) { const m = JSON.parse(localStorage.getItem(Component.KEY_ME) || 'null'); if (m) this.setState({ me: m.me || 'tolu', view: m.view ?? null, signedIn: m.signedIn ?? null }); }
-    } catch (e) {}
+  // ---------- Supabase backend ----------
+  weekKey(w) { const m = this.monday(w); return m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(m.getDate()).padStart(2, '0'); }
+  weekOff(key) { const [y, mo, d] = String(key).split('-').map(Number); return Math.round((new Date(y, mo - 1, d) - this.monday(0)) / 604800000); }
+  toRow(e) { return { id: e.id, week: this.weekKey(e.w), d: e.d, start_hour: e.start, dur: e.dur, type: e.type, title: e.title || '', owner: e.owner, people: e.people }; }
+  fromRow(r) { return { id: r.id, w: this.weekOff(r.week), d: r.d, start: r.start_hour, dur: r.dur, type: r.type, title: r.title || '', owner: r.owner, people: r.people || {} }; }
+  typeRow(t) { return { id: t.id, label: t.label, icon: t.icon, fill: t.fill, campus: !!t.campus }; }
+  typeFrom(r) { return { id: r.id, label: r.label, icon: r.icon, fill: r.fill, campus: !!r.campus, custom: true }; }
+  uid(p) { return p + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); }
+  applyRemote(patch) { if (patch.events) this._lastEvents = patch.events; if (patch.types) this._lastTypes = patch.types; this.setState(patch); }
+
+  async initAuth() {
+    const sb = window.sb;
+    if (!sb) { this.setState({ authReady: true, authMsg: 'Setup needed: add your Supabase URL and anon key to config.js.' }); return; }
+    const { data } = await sb.auth.getSession();
+    this.onSession(data && data.session);
+    const sub = sb.auth.onAuthStateChange((_ev, session) => { setTimeout(() => this.onSession(session), 0); });
+    this.authSub = sub && sub.data && sub.data.subscription;
   }
+  async onSession(session) {
+    const email = session && session.user && session.user.email ? session.user.email.toLowerCase() : '';
+    if (email === (this._sess || '')) { if (!email) this.setState({ authReady: true }); return; }
+    this._sess = email;
+    if (!email) { this.teardown(); this.applyRemote({ events: [], types: [] }); this.setState({ signedIn: false, authReady: true, email: '' }); return; }
+    const { data, error } = await window.sb.from('members').select('person_id').eq('email', email).maybeSingle();
+    if (error || !data || !this.person(data.person_id)) {
+      this._sess = '';
+      await window.sb.auth.signOut();
+      this.setState({ signedIn: false, authReady: true, authMsg: error ? "Couldn't reach the house database. Try again." : `${email} isn't in this house. Ask whoever set up Shotgun to add it.` });
+      return;
+    }
+    this.setState({ me: data.person_id, email, signedIn: true, authReady: true, authMsg: '' });
+    await this.loadAll();
+    this.subscribe();
+  }
+  async loadAll() {
+    const sb = window.sb; if (!sb || !this.state.signedIn) return;
+    const [ev, ty] = await Promise.all([sb.from('events').select('*'), sb.from('types').select('*').order('label')]);
+    if (ev.error || ty.error) { console.error(ev.error || ty.error); this.toast("Couldn't load the calendar. Refresh to try again."); return; }
+    this.applyRemote({ events: ev.data.map(r => this.fromRow(r)), types: ty.data.map(r => this.typeFrom(r)) });
+  }
+  subscribe() {
+    if (this.ch || !window.sb) return;
+    const live = (key, from, toCmp) => (p) => {
+      const cur = this.state[key];
+      if (p.eventType === 'DELETE') { const id = p.old && p.old.id; if (id && cur.some(x => x.id === id)) this.applyRemote({ [key]: cur.filter(x => x.id !== id) }); return; }
+      const x = from(p.new), i = cur.findIndex(y => y.id === x.id);
+      if (i >= 0 && JSON.stringify(toCmp(cur[i])) === JSON.stringify(toCmp(x))) return;
+      this.applyRemote({ [key]: i >= 0 ? cur.map(y => y.id === x.id ? x : y) : [...cur, x] });
+    };
+    this.ch = window.sb.channel('shotgun-house')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, live('events', r => this.fromRow(r), e => this.toRow(e)))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'types' }, live('types', r => this.typeFrom(r), t => this.typeRow(t)))
+      .subscribe();
+  }
+  teardown() { if (this.ch && window.sb) window.sb.removeChannel(this.ch); this.ch = null; }
+  async pushDiff(table, prev, next, toRow) {
+    const sb = window.sb; if (!sb) return;
+    const old = new Map(prev.map(x => [x.id, x])), ids = new Set(next.map(x => x.id));
+    const ins = next.filter(x => !old.has(x.id)).map(toRow);
+    const upd = next.filter(x => old.has(x.id) && old.get(x.id) !== x).map(toRow);
+    const del = prev.filter(x => !ids.has(x.id)).map(x => x.id);
+    try {
+      const res = [];
+      if (ins.length) res.push(await sb.from(table).upsert(ins));
+      for (const r of upd) res.push(await sb.from(table).update(r).eq('id', r.id));
+      if (del.length) res.push(await sb.from(table).delete().in('id', del));
+      const bad = res.find(r => r.error); if (bad) throw bad.error;
+    } catch (e) { console.error(e); this.toast("Couldn't save that change. Reloading the latest version."); this.loadAll(); }
+  }
+
   componentDidMount() {
-    this.asP = new URLSearchParams(location.search).get('as');
-    this.load(false);
-    if (this.asP && this.person(this.asP)) this.setState({ me: this.asP, signedIn: true });
+    this._lastEvents = this.state.events; this._lastTypes = this.state.types; this._lastView = this.state.view;
     const nd = this.nDays(); if (this.state.day >= nd) this.setState({ day: nd - 1 });
-    this.onStorage = (e) => { if (e.key === Component.KEY) this.load(true); };
+    this.initAuth();
+    this.onFocus = () => { if (document.visibilityState === 'visible') this.loadAll(); };
     this.onResize = () => this.setState({ w: window.innerWidth });
     this.onKey = (e) => {
       if (e.key === 'Escape') { this.setState({ sheet: null, menu: false }); return; }
@@ -2442,7 +2505,7 @@ class Component extends DCLogic {
       if (e.key === 'w') this.setState({ view: 'week' });
       if (e.key === 'n') this.openNew();
     };
-    window.addEventListener('storage', this.onStorage);
+    document.addEventListener('visibilitychange', this.onFocus);
     window.addEventListener('resize', this.onResize);
     window.addEventListener('keydown', this.onKey);
     this.onResize();
@@ -2450,22 +2513,23 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     clearInterval(this.scInt);
-    window.removeEventListener('storage', this.onStorage);
+    this.teardown(); if (this.authSub) this.authSub.unsubscribe();
+    document.removeEventListener('visibilitychange', this.onFocus);
     window.removeEventListener('resize', this.onResize);
     window.removeEventListener('keydown', this.onKey);
     window.removeEventListener('pointermove', this.onMove);
   }
-  componentDidUpdate(pp, ps) {
+  componentDidUpdate() {
     const s = this.state;
-    try {
-      if (!this.syncing && (ps.events !== s.events || ps.types !== s.types)) localStorage.setItem(Component.KEY, JSON.stringify({ events: s.events, types: s.types }));
-      if (!this.asP && (ps.me !== s.me || ps.view !== s.view || ps.signedIn !== s.signedIn)) localStorage.setItem(Component.KEY_ME, JSON.stringify({ me: s.me, view: s.view, signedIn: s.signedIn }));
-    } catch (e) {}
+    if (s.view !== this._lastView) { this._lastView = s.view; try { localStorage.setItem('shotgun-view', s.view || ''); } catch (e) {} }
+    if (!s.signedIn) return;
+    if (s.events !== this._lastEvents) { const prev = this._lastEvents || []; this._lastEvents = s.events; this.pushDiff('events', prev, s.events, e => this.toRow(e)); }
+    if (s.types !== this._lastTypes) { const prev = this._lastTypes || []; this._lastTypes = s.types; this.pushDiff('types', prev, s.types, t => this.typeRow(t)); }
   }
 
   nDays() { return this.props.showWeekend ? 7 : 5; }
   view() { return this.state.view || this.props.defaultView || 'day'; }
-  signedIn() { return this.state.signedIn ?? (this.props.startSignedIn ?? false); }
+  signedIn() { return !!this.state.signedIn; }
   isMob() { return this.props.layout === 'mobile' || (this.props.layout !== 'desktop' && this.state.w < 720); }
   person(id) { const p = Component.P.find(q => q.id === id); return p && this.deco(p); }
   deco(p) { const mine = p.id === this.state.me; return { ...p, c7: mine ? '#ff4d2e' : '#111111', c1: mine ? '#fbeee3' : '#efe6d6', c3: '#e6dccb', c8: '#111111' }; }
@@ -2547,7 +2611,7 @@ class Component extends DCLogic {
       this.toast(`Updated ${this.label(ne)}`, () => this.setState({ events: before }));
     } else {
       const people = { [me]: 'going' }; f.invite.forEach(p => { people[p] = 'invited'; });
-      const ne = { id: 'e' + Date.now(), w: this.state.weekOffset, d: f.d, start: f.start, dur: f.dur, type: f.type, title: f.title.trim(), owner: me, people };
+      const ne = { id: this.uid('e'), w: this.state.weekOffset, d: f.d, start: f.start, dur: f.dur, type: f.type, title: f.title.trim(), owner: me, people };
       this.setState({ events: [...before, ne], sheet: null, day: f.d });
       this.toast(`Added ${this.label(ne)}${f.invite.length ? ` · invite sent to ${f.invite.map(p => this.person(p).name).join(' & ')}` : ''}`, () => this.setState({ events: before }));
     }
@@ -2565,14 +2629,14 @@ class Component extends DCLogic {
   addType = () => {
     const nt = this.state.nt, label = nt.label.trim();
     if (!label) { this.toast('Give the new type a name first'); return; }
-    const t = { id: 't' + Date.now(), label, icon: nt.icon, fill: Component.FILLS[this.state.types.length % Component.FILLS.length], campus: nt.campus, custom: true };
+    const t = { id: this.uid('t'), label, icon: nt.icon, fill: Component.FILLS[this.state.types.length % Component.FILLS.length], campus: nt.campus, custom: true };
     this.setState(s => ({ types: [...s.types, t], nt: { label: '', icon: 'work', campus: false }, sheet: s.sheet && s.sheet.mode === 'form' ? { ...s.sheet, type: t.id, ntOpen: false } : s.sheet }));
     this.toast(`Added "${label}" type`);
   };
   copyLastWeek = () => {
     const w = this.state.weekOffset, me = this.state.me, before = this.state.events;
     const src = before.filter(e => e.w === w - 1 && e.type === 'lecture' && e.owner === me);
-    const add = src.map((e, i) => ({ ...e, id: 'c' + Date.now() + i, w, people: { [me]: 'going' } }));
+    const add = src.map((e, i) => ({ ...e, id: this.uid('c'), w, people: { [me]: 'going' } }));
     this.setState({ events: [...before, ...add] });
     this.toast(`Copied ${add.length} lectures from last week`, () => this.setState({ events: before }));
   };
@@ -3122,13 +3186,12 @@ class Component extends DCLogic {
 
     const tt = s.toast;
     return {
-      showSignIn: !this.signedIn(), showApp: this.signedIn(),
+      showSignIn: s.authReady && !this.signedIn(), showApp: this.signedIn(), authMsg: s.authMsg,
       scene: this.signedIn() ? null : this.sceneEl(),
       si: mob ? { align: 'flex-end', pad: '24px 22px max(24px, env(safe-area-inset-bottom))', top: '0px', bot: '300px', fs: '17px', gap: '16px', ov: 'linear-gradient(0deg,#1a1220 0px,#1a1220 300px,rgba(26,18,32,0) 380px)' } : { align: 'center', pad: '48px clamp(24px,8vw,120px)', top: '0px', bot: '0px', fs: '20px', gap: '22px', ov: 'linear-gradient(90deg,rgba(18,12,20,.8) 0%,rgba(18,12,20,.5) 42%,rgba(18,12,20,0) 72%)' },
       sceneDots: Component.SCN.map((label, i) => { const N = Component.NSC; return { label, w: s.sc % N === i ? '26px' : '8px', bg: s.sc % N === i ? '#ffffff' : 'rgba(249,244,237,.4)', pick: () => this.setState(x => ({ sc: x.sc - (x.sc % N) + N + i })) }; }),
-      signIn: () => { this.setState({ signedIn: true }); this.toast(`Signed in as ${meP.name}`); },
-      signOut: () => this.setState({ signedIn: false, menu: false }),
-      resetDemo: () => { const sd = this.seed(), before = { events: s.events, types: s.types }; this.setState({ ...sd, menu: false }); this.toast('Demo data reset', () => this.setState(before)); },
+      signIn: async () => { if (!window.sb) { this.setState({ authMsg: 'Setup needed: add your Supabase URL and anon key to config.js.' }); return; } const { error } = await window.sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } }); if (error) this.setState({ authMsg: "Couldn't start Google sign-in. Try again." }); },
+      signOut: async () => { this.setState({ menu: false }); if (window.sb) await window.sb.auth.signOut(); },
       isMob: mob, isDesk: !mob, showFab: mob && !open, padBottom: mob ? '24px' : '0px',
       segDay: view === 'day' ? segOn : segOff, segWeek: view === 'week' ? segOn : segOff,
       setDay: () => this.setState({ view: 'day' }), setWeek: () => this.setState({ view: 'week' }),
